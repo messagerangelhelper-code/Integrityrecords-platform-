@@ -1,0 +1,258 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --charcoal: #1a1a1a;
+  --purple: #3C3489;
+  --purple-light: #7F77DD;
+  --gold: #D4A94D;
+  --off-white: #f5f4f0;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+  background: var(--off-white);
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+nav {
+  background: var(--charcoal);
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+nav .brand {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+nav .brand span {
+  color: var(--gold);
+}
+
+nav .links a {
+  color: #ddd;
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 15px;
+}
+
+nav .links a:hover {
+  color: var(--gold);
+}
+
+.hero {
+  background: var(--charcoal);
+  color: white;
+  padding: 70px 24px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.hero h1 span {
+  color: var(--gold);
+}
+
+.hero p {
+  font-size: 18px;
+  color: #ccc;
+  max-width: 600px;
+  margin: 0 auto 28px;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--purple);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--purple-light);
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: #3a2c0a;
+}
+
+.btn-gold:hover {
+  background: #e6bd6a;
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 24px;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 40px;
+  color: var(--charcoal);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.product-card h3 {
+  color: var(--purple);
+  margin-bottom: 8px;
+  font-size: 22px;
+}
+
+.product-card p {
+  color: #555;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.badge {
+  display: inline-block;
+  background: #f0edfb;
+  color: var(--purple);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.badge-soon {
+  background: #fdf3e0;
+  color: #8a6a1f;
+}
+
+.hire-section {
+  background: var(--purple);
+  color: white;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.hire-section h2 {
+  font-size: 30px;
+  margin-bottom: 16px;
+}
+
+.hire-section p {
+  max-width: 550px;
+  margin: 0 auto 28px;
+  color: #e5e2fa;
+  font-size: 17px;
+}
+
+footer {
+  background: var(--charcoal);
+  color: #999;
+  text-align: center;
+  padding: 24px;
+  font-size: 14px;
+}
+
+.page-header {
+  background: var(--charcoal);
+  color: white;
+  padding: 50px 24px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 34px;
+}
+
+.content-block {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 50px 24px;
+}
+
+.content-block h2 {
+  color: var(--purple);
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+}
+
+.feature-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.feature-list li::before {
+  content: "✓ ";
+  color: var(--purple);
+  font-weight: bold;
+}
+
+form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+form label {
+  display: block;
+  font-weight: 600;
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+form input,
+form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+form textarea {
+  min-height: 120px;
+}
+
+form button {
+  margin-top: 24px;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 30px;
+  }
+  nav .links a {
+    margin-left: 12px;
+    font-size: 14px;
+  }
+}
