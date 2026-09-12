@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Integrity Records — Apps Built With Purpose</title>
-  <meta name="description" content="Integrity Records builds and sells software: ScamShield, Encompass, and Integrity Records — plus custom development work." />
+  <title>CashCow — Apps Built With Purpose</title>
+  <meta name="description" content="CashCow builds and sells software: ScamShield, Encompass, and Integrity Records — plus custom development work." />
   <link rel="stylesheet" href="style.css" />
   <style>
     @font-face {
-      font-display: block!
+      font-display: block;
       font-family: Roboto;
       src: url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/7529907e9eaf8ebb5220c5f9850e3811.woff2) format("woff2"), url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/25c678feafdc175a70922a116c9be3e7.woff) format("woff")
     }
@@ -32,11 +32,12 @@
     #sib-container a { text-decoration: underline; color: #2BB2FC; }
   </style>
   <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+  <script type="text/javascript" id="hs-script-loader" async defer src="//js-na2.hs-scripts.com/247368798.js"></script>
 </head>
 <body>
 
   <nav>
-    <a href="index.html" class="brand">Integrity <span>Records</span></a>
+    <a href="index.html" class="brand">CashCow</a>
     <div class="links">
       <a href="scamshield.html">ScamShield</a>
       <a href="encompass.html">Encompass</a>
@@ -139,6 +140,40 @@
     </div>
   </div>
 
+  <div class="reviews-section">
+    <h2 class="section-title">Reviews</h2>
+
+    <form id="review-form">
+      <label for="rev-name">Your name</label>
+      <input type="text" id="rev-name" required maxlength="80" />
+
+      <label for="rev-product">Which product?</label>
+      <select id="rev-product">
+        <option>General</option>
+        <option>ScamShield</option>
+        <option>Encompass</option>
+        <option>Integrity Records</option>
+      </select>
+
+      <label for="rev-rating">Rating</label>
+      <select id="rev-rating">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Very Poor</option>
+      </select>
+
+      <label for="rev-comment">Your review</label>
+      <textarea id="rev-comment" required maxlength="1000"></textarea>
+
+      <button type="submit" class="btn btn-gold">Submit Review</button>
+      <p id="review-status" class="subtext"></p>
+    </form>
+
+    <div id="reviews-list" class="reviews-list"></div>
+  </div>
+
   <div class="hire-section">
     <h2>Need something built?</h2>
     <p>
@@ -150,7 +185,7 @@
   </div>
 
   <footer>
-    &copy; 2026 Integrity Records. All rights reserved.
+    &copy; 2026 CashCow. All rights reserved.
   </footer>
 
   <script>
@@ -173,6 +208,60 @@
     var AUTOHIDE = Boolean(0);
   </script>
   <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
+
+  <script>
+    const REVIEWS_API = "https://cashcow-reviews-api.onrender.com"; // update once deployed
+
+    async function loadReviews() {
+      const list = document.getElementById("reviews-list");
+      try {
+        const res = await fetch(`${REVIEWS_API}/api/reviews`);
+        const data = await res.json();
+        if (!data.reviews || data.reviews.length === 0) {
+          list.innerHTML = '<p class="subtext">No reviews yet — be the first to leave one.</p>';
+          return;
+        }
+        list.innerHTML = data.reviews.map(r => `
+          <div class="review-card">
+            <div class="review-stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div>
+            <p class="review-comment">"${r.comment}"</p>
+            <p class="review-meta">— ${r.name}, on ${r.product}</p>
+          </div>
+        `).join("");
+      } catch (err) {
+        list.innerHTML = '<p class="subtext">Reviews are temporarily unavailable.</p>';
+      }
+    }
+
+    document.getElementById("review-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const status = document.getElementById("review-status");
+      status.textContent = "Submitting...";
+
+      const payload = {
+        name: document.getElementById("rev-name").value,
+        product: document.getElementById("rev-product").value,
+        rating: parseInt(document.getElementById("rev-rating").value, 10),
+        comment: document.getElementById("rev-comment").value,
+      };
+
+      try {
+        const res = await fetch(`${REVIEWS_API}/api/reviews`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error("Submission failed");
+        status.textContent = "Thank you for your review!";
+        document.getElementById("review-form").reset();
+        loadReviews();
+      } catch (err) {
+        status.textContent = "Couldn't submit right now — please try again shortly.";
+      }
+    });
+
+    loadReviews();
+  </script>
 
 </body>
 </html>
