@@ -201,7 +201,7 @@
       } catch (err) {
         console.error("Newsletter signup failed:", err);
         msg.style.color = "#661d1d";
-        msg.textContent = "Something went wrong — please try again.";
+        msg.textContent = "Error: " + (err.code || err.message || "unknown error");
         btn.disabled = false;
         btn.textContent = "SUBSCRIBE";
       }
