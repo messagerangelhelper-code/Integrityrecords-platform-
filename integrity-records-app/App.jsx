@@ -46,14 +46,14 @@ function toDirectLink(url) {
 const SONG = "Truly Amazing";
 
 const TRACKS = [
-  { take: "Take 4",   artist: "", photoUrl: "", gender: "Male",   culture: "White",    favorite: false },
-  { take: "Take 6",   artist: "", photoUrl: "", gender: "Male",   culture: "White",    favorite: false },
-  { take: "Take 8",   artist: "", photoUrl: "", gender: "Male",   culture: "Hispanic", favorite: false },
-  { take: "Take 9",   artist: "", photoUrl: "", gender: "Female", culture: "White",    favorite: true },
-  { take: "Take 10",  artist: "", photoUrl: "", gender: "Male",   culture: "Black",    favorite: true },
-  { take: "Take 11",  artist: "", photoUrl: "", gender: "Male",   culture: "Black",    favorite: true },
-  { take: "Take 13",  artist: "", photoUrl: "", gender: "Male",   culture: "White",    favorite: false },
-  { take: "Original", artist: "", photoUrl: "", gender: "Female", culture: "White",    favorite: false },
+  { take: "Take 4",   artist: "", photoUrl: "", favorite: false },
+  { take: "Take 6",   artist: "", photoUrl: "", favorite: false },
+  { take: "Take 8",   artist: "", photoUrl: "", favorite: false },
+  { take: "Take 9",   artist: "", photoUrl: "", favorite: true },
+  { take: "Take 10",  artist: "", photoUrl: "", favorite: true },
+  { take: "Take 11",  artist: "", photoUrl: "", favorite: true },
+  { take: "Take 13",  artist: "", photoUrl: "", favorite: false },
+  { take: "Original", artist: "", photoUrl: "", favorite: false },
 ];
 
 const AVATAR_HUES = ["#C9A24B", "#7A2E2E", "#3B6E71", "#5A5B8C", "#9A6B3F", "#4C7A5D", "#8C4B6B", "#6B7A99"];
@@ -63,9 +63,6 @@ const RINGTONES = TRACKS.map((t, i) => ({
   title: t.artist ? `${SONG} — ${t.artist}` : `${SONG} (${t.take})`,
   artist: t.artist || "Artist name pending",
   photoUrl: t.photoUrl,
-  gender: t.gender,
-  culture: t.culture,
-  demographic: t.gender && t.culture ? `${t.culture} ${t.gender.toLowerCase()} vocalist` : "",
   favorite: t.favorite,
   hue: AVATAR_HUES[i % AVATAR_HUES.length],
   price: 2.0,
@@ -372,8 +369,8 @@ function Ringtones({ player, cart, addToCart, library }) {
           <Lock size={16} className="shrink-0 mt-0.5" />
           <span>
             All 8 tracks are connected and playable. Names and real photos aren't in yet, so avatars
-            show a colored icon labeled with the vocalist's gender and background instead. Tell me
-            each artist's name (and a real photo, if you have one) and I'll swap it in.
+            show a generic icon for now. Tell me each artist's name (and a real photo, if you have
+            one) and I'll swap it in.
           </span>
         </div>
       )}
@@ -381,8 +378,7 @@ function Ringtones({ player, cart, addToCart, library }) {
       <div className="rounded-md p-4 text-sm ir-body flex items-start gap-3" style={{ background: "#1c2a20", border: `1px solid #2f4a37`, color: "#c9e0d0" }}>
         <Star size={16} className="shrink-0 mt-0.5" style={{ color: COLORS.brass }} />
         <span>
-          Fan favorites, marked below: the White female vocalist take is the top pick, with both
-          Black male vocalist takes as the runner-up recommendation.
+          Fan favorites are marked below with a star.
         </span>
       </div>
 
@@ -433,7 +429,7 @@ function Ringtones({ player, cart, addToCart, library }) {
                   {isPlaying && <Waveform />}
                 </div>
                 <div className="ir-mono text-[11px] mt-0.5" style={{ color: rt.artist === "Artist name pending" ? "#7a8099" : "#9aa0b4" }}>
-                  {rt.artist === "Artist name pending" ? rt.demographic || rt.artist : rt.artist}
+                  {rt.artist}
                 </div>
                 {isPlaying && duration > 0 && (
                   <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: COLORS.line }}>
