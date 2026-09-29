@@ -979,6 +979,9 @@ export default function App() {
         <p className="ir-mono text-[11px] tracking-wide" style={{ color: "#5c6178" }}>
           INTEGRITY RECORDS — NO FINE PRINT, NO TAKING ADVANTAGE. JUST MUSIC MADE FOR GOD.
         </p>
+        <p className="text-[11px] mt-2" style={{ color: "#5c6178" }}>
+          &copy; 2026 Integrity Records. All rights reserved.
+        </p>
       </footer>
 
       {checkoutOpen && (
