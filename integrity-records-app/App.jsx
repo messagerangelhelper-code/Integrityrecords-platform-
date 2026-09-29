@@ -5,6 +5,16 @@ import {
   ShieldCheck, PenLine, Sunrise, Quote, ChevronRight, Menu, Trash2,
   Copy, Link as LinkIcon, User,
 } from "lucide-react";
+import GospelConnectionDoor from "./GospelConnectionDoor";
+
+/* =========================================================================
+   GOSPEL CONNECTION — WhatsApp community door
+   -------------------------------------------------------------------------
+   Instead of a custom in-app messenger, the door's wormhole animation
+   plays, then opens your WhatsApp group in a new tab — using
+   infrastructure that already exists instead of building one from scratch.
+   ========================================================================= */
+const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/EfpqNDFc79xHqmT9MQ7Mum";
 
 /* =========================================================================
    AUDIO SOURCE CONFIG
@@ -333,6 +343,12 @@ function Home({ go }) {
             </div>
           </button>
         ))}
+      </section>
+
+      <section>
+        <GospelConnectionDoor
+          onEnter={() => window.open(WHATSAPP_GROUP_LINK, "_blank", "noopener,noreferrer")}
+        />
       </section>
 
       <section className="rounded-lg p-6" style={{ background: COLORS.panel, border: `1px solid ${COLORS.line}` }}>
