@@ -138,6 +138,17 @@
           type="email" id="LEAD_EMAIL" name="EMAIL" required placeholder="you@email.com"
           style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #C0CCD9; border-radius:3px; font-size:16px; font-family:Helvetica, sans-serif; margin-bottom:6px;"
         />
+        <!--
+          Honeypot: hidden from real visitors (off-screen + aria-hidden), but
+          simple bots that auto-fill every field on a form will fill this in.
+          If it's non-empty on submit, we silently drop the request instead
+          of writing to Firestore.
+        -->
+        <input
+          type="text" id="lead-hp" name="company" autocomplete="off" tabindex="-1"
+          aria-hidden="true"
+          style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;"
+        />
         <p style="font-family:Helvetica, sans-serif; font-size:12px; color:#8390A4; margin:0 0 18px;">
           Provide your email address to subscribe. For e.g abc@xyz.com
         </p>
@@ -171,13 +182,47 @@
 
     const form = document.getElementById("lead-capture-form");
     const emailInput = document.getElementById("LEAD_EMAIL");
+    const hpInput = document.getElementById("lead-hp");
     const btn = document.getElementById("lead-submit-btn");
     const msg = document.getElementById("lead-form-message");
+
+    // Basic email shape check — Firestore's rule only checks "is a string
+    // longer than 3 characters", so this catches obvious junk before it
+    // ever reaches the database.
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Simple per-browser throttle so a script (or an impatient double-click)
+    // can't hammer this form and rack up Firestore writes. This is a
+    // convenience speed bump, not real security — a determined bot can
+    // clear localStorage — but it stops the casual/accidental abuse case.
+    // For real bot protection, add Firebase App Check (reCAPTCHA v3) later.
+    const THROTTLE_MS = 60_000;
+    const THROTTLE_KEY = "ir:lastLeadSubmit";
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = emailInput.value.trim();
-      if (!email) return;
+      if (!email || !EMAIL_RE.test(email)) {
+        msg.style.color = "#661d1d";
+        msg.textContent = "Please enter a valid email address.";
+        return;
+      }
+
+      // Honeypot tripped — a bot filled in a field real visitors never see.
+      // Pretend success so the bot doesn't learn to adapt, but skip the write.
+      if (hpInput.value.trim() !== "") {
+        form.reset();
+        msg.style.color = "#085229";
+        msg.textContent = "Your subscription has been successful.";
+        return;
+      }
+
+      const lastSubmit = Number(localStorage.getItem(THROTTLE_KEY) || 0);
+      if (Date.now() - lastSubmit < THROTTLE_MS) {
+        msg.style.color = "#661d1d";
+        msg.textContent = "Please wait a moment before subscribing again.";
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = "SUBSCRIBING...";
@@ -194,6 +239,7 @@
           source: "cashcowai-homepage-newsletter",
           createdAt: serverTimestamp(),
         });
+        localStorage.setItem(THROTTLE_KEY, String(Date.now()));
         form.reset();
         msg.style.color = "#085229";
         msg.textContent = "Your subscription has been successful.";
