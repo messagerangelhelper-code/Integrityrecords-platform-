@@ -281,6 +281,13 @@
       <label for="rev-comment">Your review</label>
       <textarea id="rev-comment" required maxlength="1000"></textarea>
 
+      <!-- Honeypot — see the newsletter form above for why this is here. -->
+      <input
+        type="text" id="rev-hp" name="website" autocomplete="off" tabindex="-1"
+        aria-hidden="true"
+        style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;"
+      />
+
       <button type="submit" class="btn btn-gold">Submit Review</button>
       <p id="review-status" class="subtext"></p>
     </form>
@@ -299,11 +306,21 @@
   </div>
 
   <footer>
-    &copy; 2026 CashCow. All rights reserved.<br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
+    &copy; 2026 CashCow. All rights reserved. · <a href="terms.html" style="color:inherit;">Terms of Service</a><br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
   </footer>
 
   <script>
     const REVIEWS_API = "https://cashcow-reviews-api.onrender.com"; // update once deployed
+
+    // Reviews come from other visitors, so their text must never be trusted
+    // as markup — escape it before it goes anywhere near innerHTML, or a
+    // review comment like "<img src=x onerror=...>" would run as script in
+    // every other visitor's browser (a stored XSS attack).
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = String(str ?? "");
+      return div.innerHTML;
+    }
 
     async function loadReviews() {
       const list = document.getElementById("reviews-list");
@@ -317,8 +334,8 @@
         list.innerHTML = data.reviews.map(r => `
           <div class="review-card">
             <div class="review-stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div>
-            <p class="review-comment">"${r.comment}"</p>
-            <p class="review-meta">— ${r.name}, on ${r.product}</p>
+            <p class="review-comment">"${escapeHtml(r.comment)}"</p>
+            <p class="review-meta">— ${escapeHtml(r.name)}, on ${escapeHtml(r.product)}</p>
           </div>
         `).join("");
       } catch (err) {
@@ -326,17 +343,39 @@
       }
     }
 
+    const reviewHp = document.getElementById("rev-hp");
+    let lastReviewSubmit = 0;
+
     document.getElementById("review-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const status = document.getElementById("review-status");
-      status.textContent = "Submitting...";
+
+      // Honeypot tripped — quietly pretend it worked, skip the request.
+      if (reviewHp.value.trim() !== "") {
+        status.textContent = "Thank you for your review!";
+        document.getElementById("review-form").reset();
+        return;
+      }
+
+      // Same per-browser throttle idea as the newsletter form.
+      if (Date.now() - lastReviewSubmit < 60_000) {
+        status.textContent = "Please wait a moment before submitting another review.";
+        return;
+      }
 
       const payload = {
-        name: document.getElementById("rev-name").value,
+        name: document.getElementById("rev-name").value.trim(),
         product: document.getElementById("rev-product").value,
         rating: parseInt(document.getElementById("rev-rating").value, 10),
-        comment: document.getElementById("rev-comment").value,
+        comment: document.getElementById("rev-comment").value.trim(),
       };
+
+      if (!payload.name || !payload.comment) {
+        status.textContent = "Please fill in your name and review.";
+        return;
+      }
+
+      status.textContent = "Submitting...";
 
       try {
         const res = await fetch(`${REVIEWS_API}/api/reviews`, {
@@ -344,7 +383,11 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) throw new Error("Submission failed");
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+          throw new Error(data.error || "Submission failed");
+        }
+        lastReviewSubmit = Date.now();
         status.textContent = "Thank you for your review!";
         document.getElementById("review-form").reset();
         loadReviews();
