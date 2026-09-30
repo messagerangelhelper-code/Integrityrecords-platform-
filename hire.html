@@ -8,7 +8,7 @@
 <body>
 
   <nav>
-    <a href="index.html" class="brand">Cash<span>Cow</span></a>
+    <a href="index.html" class="brand">Cash<span>Cow</span><span class="brand-dollar">$</span></a>
     <div class="links">
       <a href="scamshield.html">ScamShield</a>
       <a href="encompass.html">Encompass</a>
@@ -50,18 +50,84 @@
       <span class="tool-badge">Render</span>
       <span class="tool-badge">Supabase</span>
       <span class="tool-badge">Stripe</span>
-      <span class="tool-badge">HubSpot</span>
       <span class="tool-badge">Brevo</span>
     </div>
 
     <h2>Get in touch</h2>
-    <div id="hubspot-form-container"></div>
-    <script charset="utf-8" type="text/javascript" src="//js-na2.hsforms.net/forms/embed/v2.js"></script>
+    <form id="hire-form">
+      <label for="hire-name">Your name</label>
+      <input type="text" id="hire-name" required maxlength="80" />
+
+      <label for="hire-email">Your email</label>
+      <input type="email" id="hire-email" required maxlength="120" />
+
+      <label for="hire-message">Tell me about the project</label>
+      <textarea id="hire-message" required maxlength="2000"></textarea>
+
+      <!-- Honeypot — same pattern as the review/newsletter forms on the homepage. -->
+      <input
+        type="text" id="hire-hp" name="website" autocomplete="off" tabindex="-1"
+        aria-hidden="true"
+        style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;"
+      />
+
+      <button type="submit" class="btn btn-gold">Send</button>
+      <p id="hire-status" class="subtext"></p>
+    </form>
+
+    <!--
+      This form posts straight to your own backend (the same one that runs
+      reviews), which emails the lead to cashcowaiadmin@gmail.com over
+      Gmail's SMTP using your own Gmail account — no third-party form
+      service, nothing to sign up for, nothing else to check.
+    -->
     <script>
-      hbspt.forms.create({
-        portalId: "247368798",
-        formId: "bf29ccbb-2458-4a3e-9fdf-e500eda09c95",
-        region: "na2"
+      const LEADS_API = "https://cashcow-reviews-api.onrender.com";
+      const hireForm = document.getElementById("hire-form");
+      const hireStatus = document.getElementById("hire-status");
+      const HIRE_THROTTLE_MS = 60_000; // one submission per minute, per browser
+
+      hireForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Honeypot — bots fill every field, humans never see this one.
+        if (document.getElementById("hire-hp").value) return;
+
+        const last = Number(localStorage.getItem("cc:lastHireSubmit") || 0);
+        if (Date.now() - last < HIRE_THROTTLE_MS) {
+          hireStatus.textContent = "Please wait a moment before sending another message.";
+          return;
+        }
+
+        const name = document.getElementById("hire-name").value.trim();
+        const email = document.getElementById("hire-email").value.trim();
+        const message = document.getElementById("hire-message").value.trim();
+        if (!name || !email || !message) return;
+
+        const btn = hireForm.querySelector("button[type=submit]");
+        btn.disabled = true;
+        btn.textContent = "Sending…";
+        hireStatus.textContent = "";
+
+        try {
+          const res = await fetch(`${LEADS_API}/api/leads`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, message }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || "Could not send that right now.");
+          }
+          localStorage.setItem("cc:lastHireSubmit", String(Date.now()));
+          hireForm.reset();
+          hireStatus.textContent = "Thanks — I'll be in touch soon.";
+        } catch (err) {
+          hireStatus.textContent = "Something went wrong sending that — please try again, or email hello@cashcowai.online directly.";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Send";
+        }
       });
     </script>
   </div>
