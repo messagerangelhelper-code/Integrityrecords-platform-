@@ -50,6 +50,7 @@
       <span class="tool-badge">Render</span>
       <span class="tool-badge">Supabase</span>
       <span class="tool-badge">Stripe</span>
+      <span class="tool-badge">HubSpot</span>
       <span class="tool-badge">Brevo</span>
     </div>
 
@@ -76,13 +77,24 @@
     </form>
 
     <!--
-      This form posts straight to your own backend (the same one that runs
-      reviews), which emails the lead to cashcowaiadmin@gmail.com over
-      Gmail's SMTP using your own Gmail account — no third-party form
-      service, nothing to sign up for, nothing else to check.
+      This form emails leads straight to cashcowaiadmin@gmail.com via
+      EmailJS — no dashboard to check (Firebase or otherwise). To finish
+      wiring it up:
+        1. Create a free account at https://www.emailjs.com
+        2. Add an Email Service connected to cashcowaiadmin@gmail.com,
+           and copy its Service ID.
+        3. Create an Email Template with {{from_name}}, {{from_email}},
+           and {{message}} variables, and copy its Template ID.
+        4. Under Account -> General, copy your Public Key.
+        5. Paste all three below in place of the "REPLACE_WITH_..." values.
     -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
-      const LEADS_API = "https://cashcow-reviews-api.onrender.com";
+      const EMAILJS_PUBLIC_KEY = "REPLACE_WITH_EMAILJS_PUBLIC_KEY";
+      const EMAILJS_SERVICE_ID = "REPLACE_WITH_EMAILJS_SERVICE_ID";
+      const EMAILJS_TEMPLATE_ID = "REPLACE_WITH_EMAILJS_TEMPLATE_ID";
+      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
       const hireForm = document.getElementById("hire-form");
       const hireStatus = document.getElementById("hire-status");
       const HIRE_THROTTLE_MS = 60_000; // one submission per minute, per browser
@@ -110,15 +122,11 @@
         hireStatus.textContent = "";
 
         try {
-          const res = await fetch(`${LEADS_API}/api/leads`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, message }),
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            from_name: name,
+            from_email: email,
+            message: message,
           });
-          const data = await res.json();
-          if (!res.ok || !data.success) {
-            throw new Error(data.error || "Could not send that right now.");
-          }
           localStorage.setItem("cc:lastHireSubmit", String(Date.now()));
           hireForm.reset();
           hireStatus.textContent = "Thanks — I'll be in touch soon.";
