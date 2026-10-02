@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Checkout — CashCow</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+  .cart-wrap { max-width: 480px; margin: 60px auto; padding: 0 20px; }
+  .cart-card {
+    border: 1px solid #e3e3e3;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+  }
+  .cart-price { font-size: 34px; font-weight: bold; margin: 10px 0 4px; }
+  .cart-desc { color: #555; margin-bottom: 22px; }
+  .cart-error { color: #c0392b; margin-top: 14px; display: none; }
+  .cart-pay-btn { width: 100%; font-size: 16px; padding: 14px; border: none; cursor: pointer; }
+  .cart-pay-btn:disabled { opacity: 0.6; cursor: default; }
+  .cart-switch { margin-top: 24px; font-size: 14px; }
+  .cart-switch a { color: inherit; text-decoration: underline; margin: 0 6px; }
+</style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="brand">Cash<span>Cow</span><span class="brand-dollar">$</span></a>
+    <div class="links">
+      <a href="scamshield.html">ScamShield</a>
+      <a href="encompass.html">Encompass</a>
+      <a href="integrity-records.html">Integrity Records</a>
+      <a href="hire.html">Hire Me</a>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="cart-wrap">
+    <h1 style="text-align:center; margin-bottom: 24px;">Checkout</h1>
+
+    <div class="cart-card" id="cartCard">
+      <span class="badge" id="cartBadge">—</span>
+      <div class="cart-price" id="cartPrice">—</div>
+      <p class="cart-desc" id="cartDesc">Loading plan…</p>
+      <button class="btn btn-gold cart-pay-btn" id="cartPayBtn" disabled>Proceed to payment</button>
+      <p class="cart-error" id="cartError"></p>
+    </div>
+
+    <p class="cart-switch">
+      Not the right plan?
+      <a href="cart.html?plan=rent">Rent</a> ·
+      <a href="cart.html?plan=lease">Lease</a> ·
+      <a href="cart.html?plan=buy">Buy</a>
+    </p>
+  </div>
+
+  <footer>
+    &copy; 2026 CashCow. All rights reserved. · <a href="terms.html" style="color:inherit;">Terms of Service</a><br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
+  </footer>
+
+<script>
+  const REVIEWS_API = "https://cashcow-reviews-api.onrender.com";
+
+  const PLAN_COPY = {
+    rent: { badge: "Rent", desc: "Cancel anytime. No commitment — billed monthly.", period: "/mo" },
+    lease: { badge: "Best value", desc: "Sign a year, save all year. Billed annually.", period: "/yr" },
+    buy: { badge: "Own it", desc: "Stop renting. Own it outright, forever.", period: " one-time" },
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const planKey = params.get("plan") || "rent";
+
+  const badgeEl = document.getElementById("cartBadge");
+  const priceEl = document.getElementById("cartPrice");
+  const descEl = document.getElementById("cartDesc");
+  const payBtn = document.getElementById("cartPayBtn");
+  const errorEl = document.getElementById("cartError");
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.style.display = "block";
+  }
+
+  async function loadPlan() {
+    const copy = PLAN_COPY[planKey];
+    if (!copy) {
+      showError("Unknown plan selected.");
+      return;
+    }
+    try {
+      const res = await fetch(`${REVIEWS_API}/api/plans`);
+      const plans = await res.json();
+      const plan = plans[planKey];
+      if (!plan) {
+        showError("That plan isn't available right now.");
+        return;
+      }
+      badgeEl.textContent = copy.badge;
+      priceEl.textContent = `$${(plan.amount / 100).toFixed(2).replace(/\.00$/, "")}${copy.period}`;
+      descEl.textContent = copy.desc;
+      payBtn.disabled = false;
+    } catch (e) {
+      showError("Couldn't load plan details — please refresh and try again.");
+    }
+  }
+
+  payBtn.addEventListener("click", async () => {
+    payBtn.disabled = true;
+    payBtn.textContent = "Redirecting to secure payment…";
+    errorEl.style.display = "none";
+    try {
+      const res = await fetch(`${REVIEWS_API}/api/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planKey }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail || "Could not start checkout.");
+      }
+      const data = await res.json();
+      window.location.href = data.url;
+    } catch (e) {
+      showError(e.message || "Something went wrong — please try again.");
+      payBtn.disabled = false;
+      payBtn.textContent = "Proceed to payment";
+    }
+  });
+
+  loadPlan();
+</script>
+
+</body>
+</html>
