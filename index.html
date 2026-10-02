@@ -44,22 +44,24 @@
         <span class="badge">Rent</span>
         <h3>🏠 $29<span class="price-period">/mo</span></h3>
         <p>Cancel anytime. No commitment — move in today.</p>
-        <a href="cart.html?plan=rent" class="btn btn-gold">Move in</a>
+        <button class="btn btn-gold plan-btn" data-plan="rent">Move in</button>
       </div>
 
       <div class="product-card pricing-featured">
         <span class="badge badge-gold">Best value</span>
         <h3>🔑 $249<span class="price-period">/yr</span></h3>
         <p>Sign a year, save all year.</p>
-        <a href="cart.html?plan=lease" class="btn btn-gold">Sign the lease</a>
+        <button class="btn btn-gold plan-btn" data-plan="lease">Sign the lease</button>
       </div>
 
       <div class="product-card">
         <span class="badge">Own it</span>
         <h3>🏡 $499<span class="price-period"> one-time</span></h3>
         <p>Stop renting. Own it outright, forever.</p>
-        <a href="cart.html?plan=buy" class="btn btn-gold">Buy it</a>
+        <button class="btn btn-gold plan-btn" data-plan="buy">Buy it</button>
       </div>
+
+      <p class="plan-error" id="planError" style="display:none; text-align:center; color:#c0392b; max-width:560px; margin:16px auto 0;"></p>
 
     </div>
       <div class="product-card">
@@ -397,6 +399,44 @@
     });
 
     loadReviews();
+  </script>
+
+  <!--
+    One-click checkout: each pricing button starts a Stripe Checkout
+    session and redirects straight to it, instead of sending the visitor
+    to a separate cart page first. cart.html still exists and works for
+    anyone who lands on it directly (e.g. a saved link), it's just no
+    longer the default path from the homepage.
+  -->
+  <script>
+    document.querySelectorAll(".plan-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const planError = document.getElementById("planError");
+        planError.style.display = "none";
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Redirecting to secure payment…";
+
+        try {
+          const res = await fetch(`${REVIEWS_API}/api/create-checkout-session`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan: btn.dataset.plan }),
+          });
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.detail || "Could not start checkout.");
+          }
+          const data = await res.json();
+          window.location.href = data.url;
+        } catch (err) {
+          planError.textContent = err.message || "Something went wrong — please try again.";
+          planError.style.display = "block";
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      });
+    });
   </script>
 
 </body>
