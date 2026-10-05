@@ -114,143 +114,6 @@
     <p class="plan-error" id="planError" style="display:none; text-align:center; color:#c0392b; max-width:560px; margin:16px auto 0;"></p>
   </main>
 
-  <!--
-    NEWSLETTER — was a Brevo (sibforms.com) embedded form; now writes
-    straight to Firestore's `leads` collection instead, same place every
-    other lead-capture point on CashCow writes to (see LeadCaptureForm.jsx
-    in the React app, and Shop.jsx's free-guide signup). No third-party
-    form service, no login/verification screens to fight with.
-    See leads in: Firebase console -> Firestore Database -> Data -> leads.
-  -->
-  <div class="lead-form" style="text-align: center; background-color: #EFF2F7; padding: 48px 16px;">
-    <div style="max-width:540px; margin:0 auto; background:#fff; border:1px solid #C0CCD9; border-radius:6px; padding:32px; text-align:left;">
-      <p style="font-family:Helvetica, sans-serif; font-size:32px; font-weight:700; color:#3C4858; margin:0 0 8px;">Newsletter</p>
-      <p style="font-family:Helvetica, sans-serif; font-size:16px; color:#3C4858; margin:0 0 20px;">Subscribe to our newsletter and stay updated.</p>
-
-      <form id="lead-capture-form">
-        <label for="LEAD_EMAIL" style="display:block; font-weight:700; font-family:Helvetica, sans-serif; font-size:16px; color:#3c4858; margin-bottom:8px;">
-          Enter your email address to subscribe
-        </label>
-        <input
-          type="email" id="LEAD_EMAIL" name="EMAIL" required placeholder="you@email.com"
-          style="width:100%; box-sizing:border-box; padding:12px 14px; border:1px solid #C0CCD9; border-radius:3px; font-size:16px; font-family:Helvetica, sans-serif; margin-bottom:6px;"
-        />
-        <!--
-          Honeypot: hidden from real visitors (off-screen + aria-hidden), but
-          simple bots that auto-fill every field on a form will fill this in.
-          If it's non-empty on submit, we silently drop the request instead
-          of writing to Firestore.
-        -->
-        <input
-          type="text" id="lead-hp" name="company" autocomplete="off" tabindex="-1"
-          aria-hidden="true"
-          style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;"
-        />
-        <p style="font-family:Helvetica, sans-serif; font-size:12px; color:#8390A4; margin:0 0 18px;">
-          Provide your email address to subscribe. For e.g abc@xyz.com
-        </p>
-        <button
-          type="submit" id="lead-submit-btn"
-          style="font-family:Helvetica, sans-serif; font-size:16px; font-weight:700; color:#FFFFFF; background-color:#3E4857; border:none; border-radius:3px; padding:12px 26px; cursor:pointer;"
-        >
-          SUBSCRIBE
-        </button>
-        <p id="lead-form-message" style="font-family:Helvetica, sans-serif; font-size:14px; margin:12px 0 0;"></p>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCvlRsE1oSNrGbY4AdLlEgFc9MkJMB2Y-o",
-      authDomain: "integrity-records-e8812.firebaseapp.com",
-      projectId: "integrity-records-e8812",
-      storageBucket: "integrity-records-e8812.firebasestorage.app",
-      messagingSenderId: "67140580542",
-      appId: "1:67140580542:web:517215ea09e2f7301e1aef",
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    const form = document.getElementById("lead-capture-form");
-    const emailInput = document.getElementById("LEAD_EMAIL");
-    const hpInput = document.getElementById("lead-hp");
-    const btn = document.getElementById("lead-submit-btn");
-    const msg = document.getElementById("lead-form-message");
-
-    // Basic email shape check — Firestore's rule only checks "is a string
-    // longer than 3 characters", so this catches obvious junk before it
-    // ever reaches the database.
-    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Simple per-browser throttle so a script (or an impatient double-click)
-    // can't hammer this form and rack up Firestore writes. This is a
-    // convenience speed bump, not real security — a determined bot can
-    // clear localStorage — but it stops the casual/accidental abuse case.
-    // For real bot protection, add Firebase App Check (reCAPTCHA v3) later.
-    const THROTTLE_MS = 60_000;
-    const THROTTLE_KEY = "ir:lastLeadSubmit";
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      if (!email || !EMAIL_RE.test(email)) {
-        msg.style.color = "#661d1d";
-        msg.textContent = "Please enter a valid email address.";
-        return;
-      }
-
-      // Honeypot tripped — a bot filled in a field real visitors never see.
-      // Pretend success so the bot doesn't learn to adapt, but skip the write.
-      if (hpInput.value.trim() !== "") {
-        form.reset();
-        msg.style.color = "#085229";
-        msg.textContent = "Your subscription has been successful.";
-        return;
-      }
-
-      const lastSubmit = Number(localStorage.getItem(THROTTLE_KEY) || 0);
-      if (Date.now() - lastSubmit < THROTTLE_MS) {
-        msg.style.color = "#661d1d";
-        msg.textContent = "Please wait a moment before subscribing again.";
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = "SUBSCRIBING...";
-      msg.textContent = "";
-
-      try {
-        // Firestore's security rules require a signed-in request; anonymous
-        // auth satisfies that without asking the visitor to create an account.
-        if (!auth.currentUser) {
-          await signInAnonymously(auth);
-        }
-        await addDoc(collection(db, "leads"), {
-          email,
-          source: "cashcowai-homepage-newsletter",
-          createdAt: serverTimestamp(),
-        });
-        localStorage.setItem(THROTTLE_KEY, String(Date.now()));
-        form.reset();
-        msg.style.color = "#085229";
-        msg.textContent = "Your subscription has been successful.";
-        btn.textContent = "SUBSCRIBED";
-      } catch (err) {
-        console.error("Newsletter signup failed:", err);
-        msg.style.color = "#661d1d";
-        msg.textContent = "Error: " + (err.code || err.message || "unknown error");
-        btn.disabled = false;
-        btn.textContent = "SUBSCRIBE";
-      }
-    });
-  </script>
-
   <div class="reviews-section">
     <h2 class="section-title">Reviews</h2>
 
@@ -278,7 +141,7 @@
       <label for="rev-comment">Your review</label>
       <textarea id="rev-comment" required maxlength="1000"></textarea>
 
-      <!-- Honeypot — see the newsletter form above for why this is here. -->
+      <!-- Honeypot: hidden from real visitors, but simple bots fill every field. If it's non-empty, the submit is silently dropped. -->
       <input
         type="text" id="rev-hp" name="website" autocomplete="off" tabindex="-1"
         aria-hidden="true"
@@ -354,7 +217,7 @@
         return;
       }
 
-      // Same per-browser throttle idea as the newsletter form.
+      // Simple per-browser throttle against accidental double-submits.
       if (Date.now() - lastReviewSubmit < 60_000) {
         status.textContent = "Please wait a moment before submitting another review.";
         return;
