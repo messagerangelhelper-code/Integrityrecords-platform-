@@ -136,5 +136,17 @@
     &copy; 2026 CashCow. All rights reserved. · <a href="terms.html" style="color:inherit;">Terms of Service</a><br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
   </footer>
 
+  <script>
+    // Coming from the "Own the business" pricing card: start the message for them.
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get("interest") === "own-the-app") {
+        var box = document.getElementById("hire-message");
+        if (box && !box.value) {
+          box.value = "I'm interested in buying one of your apps outright (code, brand, domain and customers). The app I'm interested in: ";
+        }
+      }
+    })();
+  </script>
 </body>
 </html>
