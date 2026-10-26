@@ -363,3 +363,9 @@ form button {
   border: 2px solid var(--gold);
   transform: scale(1.03);
 }
+
+/* Mission-led homepage */
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn-outline-light { background: transparent; color: #ffffff; border: 2px solid rgba(255, 255, 255, 0.7); padding: 12px 26px; }
+.btn-outline-light:hover { background: rgba(255, 255, 255, 0.12); color: #ffffff; }
+.product-card .problem { color: #8a6a1f; font-style: italic; font-weight: 600; font-size: 15px; margin: 4px 0 6px; }
