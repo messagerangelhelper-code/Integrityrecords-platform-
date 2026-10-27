@@ -369,3 +369,9 @@ form button {
 .btn-outline-light { background: transparent; color: #ffffff; border: 2px solid rgba(255, 255, 255, 0.7); padding: 12px 26px; }
 .btn-outline-light:hover { background: rgba(255, 255, 255, 0.12); color: #ffffff; }
 .product-card .problem { color: #8a6a1f; font-style: italic; font-weight: 600; font-size: 15px; margin: 4px 0 6px; }
+
+/* CashCow All Access (coming soon) */
+.all-access-card { max-width: 720px; margin: 0 auto; text-align: left; }
+.all-access-list { margin: 8px 0 14px; padding-left: 20px; color: #444; line-height: 1.6; }
+.notify-form { display: flex; flex-wrap: wrap; gap: 10px; }
+.notify-form input { flex: 1 1 180px; padding: 12px 14px; border: 1px solid #ccc; border-radius: 8px; font: inherit; min-width: 0; }

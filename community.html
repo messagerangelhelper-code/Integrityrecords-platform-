@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CashCow Community</title>
+  <meta name="description" content="One community for every CashCow app: scam warnings, food and health tips, home remedies, bills and money, and app feedback." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .cc-wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+    .cc-card { background: #fff; border: 1px solid #e3e3ea; border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+    .cc-card h2 { margin: 0 0 8px; font-size: 20px; color: var(--purple); }
+    .cc-muted { color: #666; font-size: 14px; }
+    .cc-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
+    .cc-chip { border: 2px solid #ddd; background: #fff; color: #222; border-radius: 999px; padding: 8px 14px; font-weight: 600; cursor: pointer; font: inherit; }
+    .cc-chip.on { border-color: var(--purple); background: #f0edfb; color: var(--purple); }
+    .cc-form { display: flex; flex-direction: column; gap: 8px; }
+    .cc-form input, .cc-form textarea, .cc-form select { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font: inherit; }
+    .cc-form label { font-weight: 600; }
+    .cc-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .cc-link { background: none; border: 0; color: var(--purple); text-decoration: underline; font-weight: 600; cursor: pointer; padding: 4px 0; font: inherit; }
+    .cc-post { width: 100%; text-align: left; background: #fff; border: 1px solid #e3e3ea; border-radius: 12px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; font: inherit; color: #222; }
+    .cc-post:hover { border-color: var(--purple); }
+    .cc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .cc-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; color: #777; align-items: center; }
+    .cc-tag { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #8a6a1f; }
+    .cc-team { background: var(--purple); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+    .cc-badge { background: #fff4d6; color: #7a5300; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 700; }
+    .cc-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; margin: 4px 0; }
+    .cc-reply { margin-left: 14px; }
+    .cc-note { background: #eefaf2; border: 1px solid #2f7a4f; color: #1d5134; border-radius: 10px; padding: 10px 12px; }
+    .cc-error { background: #fdecea; color: #b3261e; border-radius: 10px; padding: 10px 12px; }
+    .cc-rules { margin: 6px 0 10px; padding-left: 20px; line-height: 1.6; color: #444; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="brand">Cash<span>Cow</span><span class="brand-dollar">$</span></a>
+    <div class="links">
+      <a href="scamshield.html">ScamShield</a>
+      <a href="scamguard.html">ScamGuard Global</a>
+      <a href="mybillpilot.html">MyBillPilot</a>
+      <a href="myhealthcheckscan.html">My Health Check Scan</a>
+      <a href="encompass.html">Encompass</a>
+      <a href="integrity-records.html">Integrity Records</a>
+      <a href="community.html">Community</a>
+      <a href="hire.html">Hire Me</a>
+      <a href="about.html">About</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>CashCow Community</h1>
+    <p>One community for every CashCow app. Share tips, warn each other, ask questions and tell us how the apps are working for you.</p>
+  </div>
+
+  <div class="cc-wrap">
+    <div id="msg"></div>
+
+    <!-- Signed out -->
+    <section id="v-signin" class="cc-card hidden">
+      <h2>Sign in to join</h2>
+      <p class="cc-muted">Use your CashCow account: the same email and password works in ScamShield, My Health Check Scan and every CashCow app.</p>
+      <div class="cc-chips">
+        <button type="button" class="cc-chip on" data-mode="signin">Sign in</button>
+        <button type="button" class="cc-chip" data-mode="signup">Create free account</button>
+      </div>
+      <form id="f-auth" class="cc-form">
+        <label for="a-email">Email</label>
+        <input id="a-email" type="email" autocomplete="email" required />
+        <label for="a-pw">Password</label>
+        <input id="a-pw" type="password" autocomplete="current-password" minlength="8" required />
+        <div class="cc-row"><button type="submit" class="btn btn-gold" id="a-btn">Sign in</button>
+          <button type="button" class="cc-link" id="a-reset">Forgot your password?</button></div>
+      </form>
+    </section>
+
+    <!-- Pick a display name -->
+    <section id="v-join" class="cc-card hidden">
+      <h2>Pick a display name</h2>
+      <p class="cc-muted">Other members see this name, never your email.</p>
+      <ul class="cc-rules">
+        <li>Be kind. Many people here just lost money or trust.</li>
+        <li>Never post your own card, bank, Social Security or password details.</li>
+        <li>Never ask anyone to message you on WhatsApp, Telegram or by text.</li>
+        <li>No offers to "recover" money. Real help comes from your bank, the FTC and IC3.gov, and it's free.</li>
+        <li>Health posts: share what worked for you, but never promise a cure or tell anyone to stop their medicine.</li>
+      </ul>
+      <form id="f-join" class="cc-form">
+        <label for="j-name">Display name</label>
+        <input id="j-name" maxlength="24" placeholder="e.g. Careful Carol" required />
+        <label class="cc-row" style="font-weight:400"><input type="checkbox" id="j-agree" style="width:auto" /> I'll follow the community rules.</label>
+        <button type="submit" class="btn btn-gold">Join the community</button>
+      </form>
+    </section>
+
+    <!-- Community -->
+    <section id="v-main" class="hidden">
+      <div class="cc-row" style="justify-content:space-between; margin-bottom:8px;">
+        <span class="cc-muted" id="who"></span>
+        <span class="cc-row"><button type="button" class="cc-link" id="b-new">New post</button><button type="button" class="cc-link" id="b-out">Sign out</button></span>
+      </div>
+      <div class="cc-chips" id="channels" role="group" aria-label="Channels"></div>
+
+      <form id="f-post" class="cc-card cc-form hidden">
+        <label for="p-channel">Channel</label><select id="p-channel"></select>
+        <label for="p-topic">Topic</label>
+        <select id="p-topic"><option value="tips">Tips</option><option value="question">Question</option><option value="spotted">Scam I spotted</option><option value="feedback">App feedback</option></select>
+        <label for="p-title">Title</label><input id="p-title" maxlength="120" />
+        <label for="p-body">What do you want to share?</label><textarea id="p-body" rows="5" maxlength="2000"></textarea>
+        <p class="cc-muted">Don't include your own card, bank or Social Security numbers.</p>
+        <div class="cc-row"><button type="submit" class="btn btn-gold">Post</button><button type="button" class="cc-link" id="p-cancel">Cancel</button></div>
+      </form>
+
+      <ul class="cc-list" id="posts"></ul>
+      <p class="cc-muted hidden" id="empty">No posts in this channel yet. Be the first to share something.</p>
+      <button type="button" class="cc-link hidden" id="more">Show older posts</button>
+    </section>
+
+    <!-- One post -->
+    <section id="v-thread" class="hidden">
+      <button type="button" class="cc-link" id="t-back">← All posts</button>
+      <div id="t-body"></div>
+      <form id="f-reply" class="cc-card cc-form">
+        <label for="r-body">Your reply</label><textarea id="r-body" rows="3" maxlength="1000"></textarea>
+        <button type="submit" class="btn btn-gold">Reply</button>
+      </form>
+    </section>
+
+    <p class="cc-muted" style="text-align:center; margin-top:24px;">Links in posts are shown as plain text so no one can be tricked into tapping them. See something wrong? Tap Flag and our team will take a look.</p>
+  </div>
+
+  <footer>
+    &copy; 2026 CashCow. All rights reserved. · <a href="terms.html" style="color:inherit;">Terms of Service</a><br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script>
+    // Community posts live on the ScamShield server; sign-in is the shared CashCow account.
+    const API = "https://scamshield-api-ww2t.onrender.com";
+    const sb = window.supabase.createClient("https://wbugdujmydwmzemccbiy.supabase.co", "sb_publishable_4RYit1aVs5Egh3gJsx2bJA_m6Kje0ES");
+    const CHANNELS = { general: "General", scam: "Scam Watch", food: "Food & Health", remedies: "Home Remedies", money: "Bills & Money", feedback: "App Feedback" };
+    const TOPICS = { tips: "Tips", spotted: "Scam I spotted", question: "Question", feedback: "App feedback" };
+    const $ = (id) => document.getElementById(id);
+    let channel = CHANNELS[location.hash.slice(1)] ? location.hash.slice(1) : "general";
+    let mode = "signin", posts = [], openId = null;
+
+    function el(tag, props = {}, ...kids) {
+      const n = document.createElement(tag);
+      for (const [k, v] of Object.entries(props)) {
+        if (k === "class") n.className = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
+      }
+      for (const k of kids.flat()) if (k !== null && k !== undefined && k !== false) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
+      return n;
+    }
+    function ago(iso) {
+      const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+      if (s < 60) return "just now"; if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+      if (s < 86400) return `${Math.floor(s / 3600)} hr ago`; if (s < 604800) return `${Math.floor(s / 86400)} days ago`;
+      return new Date(iso).toLocaleDateString();
+    }
+    function say(text, isError) {
+      const m = $("msg"); m.replaceChildren();
+      if (text) { m.append(el("p", { class: isError ? "cc-error" : "cc-note", role: "status" }, text)); m.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    }
+    function show(view) {
+      for (const v of ["v-signin", "v-join", "v-main", "v-thread"]) $(v).classList.toggle("hidden", v !== view);
+    }
+    async function api(path, opts = {}) {
+      const { data } = await sb.auth.getSession();
+      const token = data.session?.access_token || "";
+      const res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.detail || "Something went wrong. Please try again.");
+      return body;
+    }
+    function author(name, team) { return el("span", {}, name, team ? el("span", { class: "cc-team" }, "CashCow team") : null); }
+    function status(item) { return item.needs_review ? el("span", { class: "cc-badge" }, "Waiting for review") : item.hidden ? el("span", { class: "cc-badge" }, "Hidden") : null; }
+
+    function drawChannels() {
+      const box = $("channels"); box.replaceChildren();
+      for (const [k, v] of [...Object.entries(CHANNELS), ["", "All channels"]]) {
+        box.append(el("button", { type: "button", class: channel === k ? "cc-chip on" : "cc-chip", "aria-pressed": String(channel === k),
+          onclick: () => { channel = k; if (k) history.replaceState(null, "", "#" + k); drawChannels(); loadPosts(); } }, v));
+      }
+      $("p-channel").replaceChildren(...Object.entries(CHANNELS).map(([k, v]) => el("option", { value: k }, v)));
+      $("p-channel").value = channel || "general";
+    }
+    async function loadPosts(append) {
+      try {
+        const q = new URLSearchParams(); if (channel) q.set("channel", channel);
+        if (append && posts.length) q.set("before", posts[posts.length - 1].id);
+        const d = await api(`/api/community/posts?${q}`);
+        posts = append ? posts.concat(d.posts) : d.posts;
+        const list = $("posts"); list.replaceChildren();
+        for (const p of posts) {
+          const tag = channel ? TOPICS[p.topic] : `${CHANNELS[p.channel] || ""} · ${TOPICS[p.topic]}`;
+          list.append(el("li", {}, el("button", { type: "button", class: "cc-post", onclick: () => openThread(p.id) },
+            el("span", { class: "cc-meta" }, el("span", { class: "cc-tag" }, tag), status(p)),
+            el("strong", {}, p.title),
+            el("span", {}, p.preview + (p.preview.length >= 180 ? "…" : "")),
+            el("span", { class: "cc-meta" }, author(p.author, p.team), el("span", {}, ago(p.created_at)), el("span", {}, `${p.replies} ${p.replies === 1 ? "reply" : "replies"}`)))));
+        }
+        $("empty").classList.toggle("hidden", posts.length > 0);
+        $("more").classList.toggle("hidden", !d.more);
+      } catch (e) { say(e.message, true); }
+    }
+    async function openThread(id) {
+      openId = id; say("");
+      try {
+        const t = await api(`/api/community/posts/${id}`);
+        const p = t.post; const box = $("t-body"); box.replaceChildren();
+        const actions = (kind, item) => el("div", { class: "cc-row" },
+          !item.mine && !item.flagged ? el("button", { type: "button", class: "cc-link", onclick: () => act("flag", kind, item.id, "Flag this for our team to review?") }, "Flag") : null,
+          item.flagged ? el("span", { class: "cc-muted" }, "Flagged") : null,
+          item.mine ? el("button", { type: "button", class: "cc-link", onclick: () => act("delete", kind, item.id, `Delete this ${kind}? This can't be undone.`) }, "Delete") : null);
+        box.append(el("article", { class: "cc-card" },
+          el("div", { class: "cc-meta" }, el("span", { class: "cc-tag" }, `${CHANNELS[p.channel] || ""} · ${TOPICS[p.topic]}`), status(p)),
+          el("h2", {}, p.title), el("div", { class: "cc-meta" }, author(p.author, p.team), el("span", {}, ago(p.created_at))),
+          el("p", { class: "cc-body" }, p.body), actions("post", p)));
+        box.append(el("h3", {}, `${t.replies.length} ${t.replies.length === 1 ? "reply" : "replies"}`));
+        for (const r of t.replies) box.append(el("div", { class: "cc-card cc-reply" },
+          el("div", { class: "cc-meta" }, author(r.author, r.team), el("span", {}, ago(r.created_at)), status(r)), el("p", { class: "cc-body" }, r.body), actions("reply", r)));
+        $("f-reply").classList.toggle("hidden", !!p.hidden);
+        show("v-thread"); window.scrollTo({ top: 0 });
+      } catch (e) { say(e.message, true); }
+    }
+    async function act(what, kind, id, confirmText) {
+      if (confirmText && !confirm(confirmText)) return;
+      try {
+        const d = await api(`/api/community/${what}`, { method: "POST", body: JSON.stringify({ kind, id, value: true }) });
+        say(d.message);
+        if (what === "delete" && kind === "post") { show("v-main"); loadPosts(); } else openThread(openId);
+      } catch (e) { say(e.message, true); }
+    }
+
+    async function refresh() {
+      const { data } = await sb.auth.getSession();
+      if (!data.session) { show("v-signin"); return; }
+      try {
+        const me = await api("/api/community/me");
+        if (!me.member) { show("v-join"); return; }
+        if (me.member.banned) { show("v-main"); $("b-new").classList.add("hidden"); }
+        $("who").textContent = `Signed in as ${me.member.display_name}`;
+        show("v-main"); drawChannels(); loadPosts();
+      } catch (e) { say(e.message, true); show("v-signin"); }
+    }
+
+    document.querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => {
+      mode = b.dataset.mode;
+      document.querySelectorAll("[data-mode]").forEach((x) => x.classList.toggle("on", x === b));
+      $("a-btn").textContent = mode === "signup" ? "Create free account" : "Sign in";
+      $("a-pw").autocomplete = mode === "signup" ? "new-password" : "current-password";
+    }));
+    $("f-auth").addEventListener("submit", async (e) => {
+      e.preventDefault(); say("");
+      const email = $("a-email").value.trim(), password = $("a-pw").value;
+      try {
+        if (mode === "signup") {
+          const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } });
+          if (error) throw error;
+          if (!data.session) return say("Almost done. Check your email and tap the link to confirm your account, then sign in here.");
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+        }
+        refresh();
+      } catch (err) {
+        const t = String(err.message || "");
+        say(/invalid login/i.test(t) ? "That email and password don't match." : /not confirmed/i.test(t) ? "Confirm your email first. Check your inbox." : t || "Something went wrong.", true);
+      }
+    });
+    $("a-reset").addEventListener("click", async () => {
+      const email = $("a-email").value.trim(); if (!email) return say("Enter your email first.", true);
+      await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+      say("If that email has an account, we've sent a link to set a new password.");
+    });
+    $("f-join").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!$("j-agree").checked) return say("Please agree to the community rules first.", true);
+      try { await api("/api/community/join", { method: "POST", body: JSON.stringify({ display_name: $("j-name").value }) }); say(""); refresh(); }
+      catch (err) { say(err.message, true); }
+    });
+    $("b-new").addEventListener("click", () => { $("f-post").classList.remove("hidden"); $("p-channel").value = channel || "general"; $("p-title").focus(); });
+    $("p-cancel").addEventListener("click", () => $("f-post").classList.add("hidden"));
+    $("f-post").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = $("p-title").value.trim(), body = $("p-body").value.trim();
+      if (title.length < 3) return say("Add a title (at least 3 characters).", true);
+      if (body.length < 10) return say("Write a little more in your post (at least 10 characters).", true);
+      try {
+        const d = await api("/api/community/posts", { method: "POST", body: JSON.stringify({ channel: $("p-channel").value, topic: $("p-topic").value, title, body }) });
+        $("p-title").value = ""; $("p-body").value = ""; $("f-post").classList.add("hidden");
+        say(d.message); loadPosts();
+      } catch (err) { say(err.message, true); }
+    });
+    $("f-reply").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = $("r-body").value.trim(); if (body.length < 2) return say("Write your reply first.", true);
+      try { const d = await api(`/api/community/posts/${openId}/replies`, { method: "POST", body: JSON.stringify({ body }) }); $("r-body").value = ""; say(d.message); openThread(openId); }
+      catch (err) { say(err.message, true); }
+    });
+    $("t-back").addEventListener("click", () => { say(""); show("v-main"); loadPosts(); });
+    $("more").addEventListener("click", () => loadPosts(true));
+    $("b-out").addEventListener("click", async () => { await sb.auth.signOut(); refresh(); });
+    sb.auth.onAuthStateChange((event) => { if (event === "SIGNED_IN" || event === "SIGNED_OUT") refresh(); });
+    refresh();
+  </script>
+</body>
+</html>
