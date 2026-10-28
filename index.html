@@ -472,7 +472,7 @@
         const res = await fetch("https://cashcow-reviews-api.onrender.com/api/leads", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, message: "Please notify me when CashCow All Access launches." }),
+          body: JSON.stringify({ name, email, message: "Please notify me when CashCow All Access launches.", source: "allaccess", topic: "All Access" }),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || data.success === false) throw new Error();
@@ -485,5 +485,6 @@
       }
     });
   </script>
+  <script src="receptionist.js" defer></script>
 </body>
 </html>
