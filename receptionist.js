@@ -22,6 +22,7 @@
     remedies: { name: "My Home Kitchen Remedies", page: "myhomekitchenremedies.html", line: "has simple remedies from your kitchen, each with an honest evidence rating and safety checks. Premium from $1.99/month." },
     letters: { name: "My Letter Helper", page: "myletterhelper.html", line: "writes ready-to-send letters for billing disputes, refunds, cancellations, debt collectors and landlords. Premium from $1.99/month." },
     recalls: { name: "My Recall Check", page: "myrecallcheck.html", line: "checks your car, truck or motorcycle for safety recalls using official NHTSA data. Premium from $1.99/month." },
+    caregiver: { name: "My Caregiver Circle", page: "mycaregivercircle.html", line: "gives the family caring for a loved one one shared plan: appointments and who's taking them, the medicine list, shared to-dos and an emergency care card. Premium from $2.99/month." },
   };
 
   var FIND = [
@@ -31,6 +32,7 @@
     ["Feeling under the weather", "remedies"],
     ["Writing a letter to a company", "letters"],
     ["Recalls on my car", "recalls"],
+    ["Caring for a parent or loved one", "caregiver"],
   ];
 
   var HELP = {
@@ -45,6 +47,7 @@
     [/\b(suicid\w*|kill (my ?self|myself)|self[- ]?harm|want to die)\b/i, "crisis"],
     [/\b(chest pain|can'?t breathe|overdos\w*|emergency|heart attack|stroke)\b/i, "emergency"],
     [/\b(scam\w*|fraud\w*|phish\w*|hack\w*|suspicious|weird (text|call|email|message)|gift cards?|wire (money|transfer)|is (this|it) (real|legit))\b|asking (me )?for (money|my)/i, "app:scamshield"],
+    [/\b(caregiv\w*|caring for|care ?circle|aging parents?|elderly|my (mom|dad|mother|father|grandma|grandpa|parents?)|medicine list|medication list|doctor appointments?)\b/i, "app:caregiver"],
     [/\b(bill|bills|due date|payments?)\b/i, "app:billpilot"],
     [/\b(food|ingredient\w*|barcode|allerg\w*|label)\b/i, "app:healthscan"],
     [/\b(remed\w*|sick|cold|cough|sore throat|natural)\b/i, "app:remedies"],
@@ -177,7 +180,7 @@
   function prices() {
     bot("Most features in every CashCow app are free. Premium adds extras, bought inside each app:\n\n" +
       "• MyBillPilot from $4.99/month\n• My Health Check Scan from $2.99/month\n• My Home Kitchen Remedies from $1.99/month\n" +
-      "• My Letter Helper from $1.99/month\n• My Recall Check from $1.99/month\n\n" +
+      "• My Letter Helper from $1.99/month\n• My Recall Check from $1.99/month\n• My Caregiver Circle from $2.99/month\n\n" +
       "Yearly and one-time lifetime plans save more. ScamShield and ScamGuard Global Premium are coming soon.");
     choices([["Tell me about All Access", allAccess], ["Something else", start]]);
   }
