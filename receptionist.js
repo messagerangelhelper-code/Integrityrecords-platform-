@@ -24,6 +24,7 @@
     recalls: { name: "My Recall Check", page: "myrecallcheck.html", line: "checks your car, truck or motorcycle for safety recalls using official NHTSA data. Premium from $1.99/month." },
     caregiver: { name: "My Caregiver Circle", page: "mycaregivercircle.html", line: "gives the family caring for a loved one one shared plan: appointments and who's taking them, the medicine list, shared to-dos and an emergency care card. Premium from $2.99/month." },
     fixit: { name: "My Fix-It Helper", page: "myfixithelper.html", line: "walks you through simple home and car fixes step by step, safety first, with the parts list and store links. Premium from $1.99/month." },
+    shopping: { name: "My Shopping Helper", page: "myshoppinghelper.html", line: "lets you type what you need once and check Amazon, Walmart, Target, H-E-B, Kroger, Wayfair, dollar stores and more, with one list for every store. Premium from $1.99/month." },
   };
 
   var FIND = [
@@ -35,6 +36,7 @@
     ["Recalls on my car", "recalls"],
     ["Caring for a parent or loved one", "caregiver"],
     ["Fixing something at home", "fixit"],
+    ["Shopping at different stores", "shopping"],
   ];
 
   var HELP = {
@@ -48,7 +50,7 @@
   var ROUTES = [
     [/\b(suicid\w*|kill (my ?self|myself)|self[- ]?harm|want to die)\b/i, "crisis"],
     [/\b(chest pain|can'?t breathe|overdos\w*|emergency|heart attack|stroke)\b/i, "emergency"],
-    [/\b(scam\w*|fraud\w*|phish\w*|hack\w*|suspicious|weird (text|call|email|message)|gift cards?|wire (money|transfer)|is (this|it) (real|legit))\b|asking (me )?for (money|my)/i, "app:scamshield"],
+    [/\b(scam\w*|fraud\w*|phish\w*|hack\w*|suspicious|weird (text|call|email|message)|gift cards?|wire (money|transfer)|is (this|it) (real|legit))\b|asking (me )?for (money|my)|\b(text|email|call|message|link|site|website)\b[^.?!]{0,25}\b(real|legit|fake)\b/i, "app:scamshield"],
     [/\b(caregiv\w*|caring for|care ?circle|aging parents?|elderly|my (mom|dad|mother|father|grandma|grandpa|parents?)|medicine list|medication list|doctor appointments?)\b/i, "app:caregiver"],
     [/\b(bill|bills|due date|payments?)\b/i, "app:billpilot"],
     [/\b(food|ingredient\w*|barcode|allerg\w*|label)\b/i, "app:healthscan"],
@@ -57,6 +59,7 @@
     [/\b(recall\w*|vin)\b/i, "app:recalls"],
     [/\b(fix(ing)? (it|my|a|the|something)|repair\w*|broken (toilet|door|faucet|sink|outlet|dryer)|leak\w*|clog\w*|toilet|faucet|drywall|gutters?|smoke alarm|dead battery|jump ?start|wipers?|handyman|diy|home security|security system|break[- ]?ins?|burglar\w*)\b/i, "app:fixit"],
     [/\b(car|truck|vehicle)\b/i, "app:recalls"],
+    [/\b(shopping|grocer\w*|groceries|cheapest|compare stores|amazon|walmart|target|costco|kroger|h-?e-?b|aldi|wayfair|ikea|dollar (tree|general|store)|furniture)\b/i, "app:shopping"],
     [/\b(price|prices|pricing|cost|how much|premium|subscription)\b/i, "prices"],
     [/\b(all access|bundle|every app|membership)\b/i, "allaccess"],
     [/\b(build|hire|custom|develop\w*|my business|rebrand|white ?label|buy (an |the )?app)\b/i, "build"],
@@ -184,7 +187,7 @@
   function prices() {
     bot("Most features in every CashCow app are free. Premium adds extras, bought inside each app:\n\n" +
       "• MyBillPilot from $4.99/month\n• My Health Check Scan from $2.99/month\n• My Home Kitchen Remedies from $1.99/month\n" +
-      "• My Letter Helper from $1.99/month\n• My Recall Check from $1.99/month\n• My Caregiver Circle from $2.99/month\n• My Fix-It Helper from $1.99/month\n\n" +
+      "• My Letter Helper from $1.99/month\n• My Recall Check from $1.99/month\n• My Caregiver Circle from $2.99/month\n• My Fix-It Helper from $1.99/month\n• My Shopping Helper from $1.99/month\n\n" +
       "Yearly and one-time lifetime plans save more. ScamShield and ScamGuard Global Premium are coming soon.");
     choices([["Tell me about All Access", allAccess], ["Something else", start]]);
   }
