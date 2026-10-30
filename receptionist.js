@@ -15,7 +15,7 @@
 
   // ---- What the receptionist knows ----
   var APPS = {
-    scamshield: { name: "ScamShield", page: "scamshield.html", line: "checks messages, links, phone numbers and photos for scams, and helps you report them." },
+    scamshield: { name: "ScamShield", page: "scamshield.html", line: "checks messages, links, phone numbers and photos for scams, and helps you report them. With Email Guard, you can forward any email and get a scam check back in about a minute." },
     scamguard: { name: "ScamGuard Global", page: "scamguard.html", line: "is the same scam protection as ScamShield, in a bold red, white and blue look." },
     billpilot: { name: "MyBillPilot", page: "mybillpilot.html", line: "keeps every bill in one place, reminds you when it's due, and checks for fake bills. Premium from $4.99/month." },
     healthscan: { name: "My Health Check Scan", page: "myhealthcheckscan.html", line: "scans a food barcode and flags banned ingredients and allergens, with healthier options. Premium from $2.99/month." },
@@ -187,8 +187,9 @@
   function prices() {
     bot("Most features in every CashCow app are free. Premium adds extras, bought inside each app:\n\n" +
       "• MyBillPilot from $4.99/month\n• My Health Check Scan from $2.99/month\n• My Home Kitchen Remedies from $1.99/month\n" +
-      "• My Letter Helper from $1.99/month\n• My Recall Check from $1.99/month\n• My Caregiver Circle from $2.99/month\n• My Fix-It Helper from $1.99/month\n• My Shopping Helper from $1.99/month\n\n" +
-      "Yearly and one-time lifetime plans save more. ScamShield and ScamGuard Global Premium are coming soon.");
+      "• My Letter Helper from $1.99/month\n• My Recall Check from $1.99/month\n• My Caregiver Circle from $2.99/month\n• My Fix-It Helper from $1.99/month\n• My Shopping Helper from $1.99/month\n" +
+      "• ScamShield Premium (includes unlimited Email Guard checks) $29/month\n\n" +
+      "Yearly and one-time lifetime plans save more.");
     choices([["Tell me about All Access", allAccess], ["Something else", start]]);
   }
 
@@ -200,9 +201,53 @@
     ]);
   }
 
+  // Business leads answer four quick questions first, so the team knows who to call back first.
   function build() {
-    bot("CashCow builds custom apps, and any of our apps can be rebranded for your business with your name, colors and features. You can also buy an app outright. Tell us a little about what you have in mind and we'll get back to you, usually within one business day.");
-    leadForm("Hire me", "");
+    var screen = {};
+    bot("CashCow builds custom apps, and any of our apps can be rebranded for your business with your name, colors and features. You can also buy an app outright. A few quick questions so we can help you faster. What are you looking for?");
+    choices([
+      ["Rebrand one of your apps for my business", function () { screen.need = "rebrand"; askWho(); }],
+      ["A new custom app", function () { screen.need = "custom"; askWho(); }],
+      ["Buy an app outright", function () { screen.need = "buy"; askWho(); }],
+      ["Just looking around", function () {
+        screen.need = "curious";
+        bot(["No problem! You can see every app we've built on the ", link("Apps page", "index.html#products"), ". Want us to keep you posted when we launch something new?"]);
+        choices([
+          ["Yes, keep me posted", function () { leadForm("Hire me", "Just looking around. Keep me posted on new apps.", "chat", false, { screen: screen }); }],
+          ["Something else", start],
+        ]);
+      }],
+    ]);
+    function askWho() {
+      bot("Is this for a business?");
+      choices([
+        ["Yes, I own or run it", function () { screen.who = "owner"; askBudget(); }],
+        ["Yes, I work there", function () { screen.who = "staff"; askBudget(); }],
+        ["No, it's a personal project", function () { screen.who = "personal"; askBudget(); }],
+      ]);
+    }
+    function askBudget() {
+      bot("About what budget do you have in mind?");
+      choices([
+        ["Under $500", function () { screen.budget = "u500"; askWhen(); }],
+        ["$500 to $2,000", function () { screen.budget = "500"; askWhen(); }],
+        ["$2,000 to $10,000", function () { screen.budget = "2k"; askWhen(); }],
+        ["$10,000 or more", function () { screen.budget = "10k"; askWhen(); }],
+        ["Not sure yet", function () { screen.budget = "unsure"; askWhen(); }],
+      ]);
+    }
+    function askWhen() {
+      bot("When would you like to get started?");
+      choices([
+        ["Within a month", function () { screen.when = "now"; finish(); }],
+        ["In 1 to 3 months", function () { screen.when = "soon"; finish(); }],
+        ["Just exploring for now", function () { screen.when = "later"; finish(); }],
+      ]);
+    }
+    function finish() {
+      bot("Thanks! Last step: how can we reach you, and what do you have in mind? The more detail, the better our first reply.");
+      leadForm("Hire me", "", "chat", false, { screen: screen, company: true });
+    }
   }
 
   function help() {
@@ -221,7 +266,9 @@
   }
 
   // ---- Lead form ----
-  function leadForm(topic, preset, source, short) {
+  function leadForm(topic, preset, source, short, extra) {
+    extra = extra || {};
+    var opened = Date.now();
     var f = el("form", "ccr-form");
     f.noValidate = true;
     var fields = [
@@ -229,6 +276,7 @@
       ["email", "Your email", "email", "email"],
     ];
     if (!short) fields.push(["phone", "Phone (optional)", "tel", "tel"]);
+    if (extra.company) fields.push(["company", "Business name or website (optional)", "text", "organization"]);
     fields.forEach(function (d) {
       var id = "ccr-" + d[0] + "-" + Date.now();
       var l = el("label", null, d[1]);
@@ -245,6 +293,12 @@
       t.id = msgId; t.name = "message"; t.rows = 3; t.maxLength = 1500; t.value = preset || "";
       f.appendChild(ml); f.appendChild(t);
     }
+    // Hidden from people; spam bots fill it in, and the server ignores those messages.
+    var hp = el("input");
+    hp.name = "hp"; hp.type = "text"; hp.tabIndex = -1; hp.autocomplete = "off";
+    hp.setAttribute("aria-hidden", "true");
+    hp.style.cssText = "position:absolute;left:-9999px;width:1px;height:1px;opacity:0";
+    f.appendChild(hp);
     var send = el("button", "ccr-send", short ? "Notify me" : "Send");
     send.type = "submit";
     var err = el("p", "ccr-err");
@@ -263,13 +317,16 @@
       if (!name) { err.textContent = "Please add your name."; return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = "Please add a valid email so we can reply."; return; }
       if (!message) { err.textContent = "Please tell us how we can help."; return; }
+      var company = f.elements.company ? f.elements.company.value.trim() : "";
+      if (/[<>]/.test(company)) { err.textContent = "Please remove the < and > characters."; return; }
       if (/[<>]/.test(name + message + phone)) { err.textContent = "Please remove the < and > characters."; return; }
       send.disabled = true;
       send.textContent = "Sending…";
       fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name, email: email, phone: phone, message: message, source: source || "chat", topic: topic }),
+        body: JSON.stringify({ name: name, email: email, phone: phone, message: message, source: source || "chat", topic: topic,
+          company: company, screen: extra.screen || {}, hp: f.elements.hp.value, elapsed: Date.now() - opened }),
       })
         .then(function (res) { return res.json().catch(function () { return {}; }).then(function (d) { return { ok: res.ok, d: d }; }); })
         .then(function (r) {
@@ -396,4 +453,72 @@
   btn.addEventListener("click", open);
   document.body.appendChild(btn);
   if (/^\d{6,20}$/.test(META_PIXEL_ID)) loadPixel(META_PIXEL_ID);
+  addEmailSignup();
+
+  // ---- "Get CashCow tips by email" box, shown above the footer ----
+  // Sign-ups get a confirmation email first (double opt-in), and each app page tags
+  // people with that app so campaigns can go to the right people.
+  function addEmailSignup() {
+    var page = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    if (/^(cart|success|terms|hire)\.html$/.test(page)) return;
+    var footer = document.querySelector("footer");
+    if (!footer) return;
+    var TAG = {
+      "scamshield.html": "scamshield", "scamguard.html": "scamshield", "mybillpilot.html": "billpilot",
+      "myhealthcheckscan.html": "healthscan", "myhomekitchenremedies.html": "remedies", "myletterhelper.html": "letters",
+      "myrecallcheck.html": "recall", "mycaregivercircle.html": "caregiver", "myfixithelper.html": "fixit",
+      "myshoppinghelper.html": "shopping", "community.html": "community",
+    };
+    var css2 = ".ccs{max-width:640px;margin:40px auto 24px;padding:22px 20px;background:#fff;border:1px solid #e5e2da;border-radius:16px;text-align:center;font-family:inherit;box-sizing:border-box}" +
+      ".ccs h2{margin:0 0 6px;font-size:1.3rem;color:#1b1b1b}.ccs p{margin:0 0 12px;color:#555;line-height:1.5}" +
+      ".ccs form{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0}" +
+      ".ccs input[type=email],.ccs input[type=text]{flex:1 1 200px;min-width:0;font:inherit;font-size:16px;border:2px solid #ddd;border-radius:12px;padding:11px 12px;box-sizing:border-box;margin:0;width:auto;max-width:none;height:auto}" +
+      ".ccs button{font:inherit;font-weight:700;background:#3C3489;color:#fff;border:0;border-radius:12px;padding:12px 20px;min-height:48px;cursor:pointer;margin:0;width:auto}" +
+      ".ccs button:disabled{opacity:.6}.ccs .ccs-msg{flex:1 1 100%;margin:4px 0 0;font-weight:600}" +
+      ".ccs .ccs-ok{color:#1d6b3a}.ccs .ccs-err{color:#b3261e}.ccs .ccs-fine{font-size:12px;color:#777;margin:10px 0 0}" +
+      ".ccs .ccs-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}";
+    var st = el("style"); st.textContent = css2; document.head.appendChild(st);
+    var box = el("section", "ccs");
+    box.setAttribute("aria-label", "Get CashCow tips by email");
+    box.appendChild(el("h2", null, "📬 Get CashCow tips by email"));
+    box.appendChild(el("p", null, "Practical tips for your home, money and safety, plus new apps as they launch. About twice a month."));
+    var f = el("form");
+    f.noValidate = true;
+    var opened = Date.now();
+    var name = el("input"); name.type = "text"; name.name = "name"; name.placeholder = "First name (optional)"; name.autocomplete = "given-name"; name.maxLength = 80;
+    name.setAttribute("aria-label", "First name (optional)");
+    var email = el("input"); email.type = "email"; email.name = "email"; email.placeholder = "Your email"; email.autocomplete = "email"; email.maxLength = 254; email.required = true;
+    email.setAttribute("aria-label", "Your email");
+    var hp = el("input"); hp.type = "text"; hp.name = "website"; hp.tabIndex = -1; hp.autocomplete = "off"; hp.className = "ccs-hp"; hp.setAttribute("aria-hidden", "true");
+    var go = el("button", null, "Sign me up"); go.type = "submit";
+    var msg = el("p", "ccs-msg"); msg.setAttribute("role", "status");
+    f.appendChild(name); f.appendChild(email); f.appendChild(hp); f.appendChild(go); f.appendChild(msg);
+    box.appendChild(f);
+    box.appendChild(el("p", "ccs-fine", "We'll email you a link to confirm first. Unsubscribe anytime with one tap."));
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      msg.className = "ccs-msg";
+      var addr = email.value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(addr)) { msg.className = "ccs-msg ccs-err"; msg.textContent = "Please enter a valid email address."; return; }
+      go.disabled = true; go.textContent = "Signing up…";
+      fetch(API.replace("/api/leads", "/api/mail/subscribe"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: addr, name: name.value.trim().replace(/[<>]/g, ""), tags: TAG[page] ? [TAG[page]] : [],
+          source: "site", hp: hp.value, elapsed: Date.now() - opened }),
+      })
+        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (d) { return { ok: res.ok, d: d }; }); })
+        .then(function (r) {
+          if (!r.ok) throw new Error(typeof r.d.detail === "string" ? r.d.detail : "");
+          f.replaceChildren(el("p", "ccs-msg ccs-ok", "Almost done! Check your email and tap the link to confirm."));
+          if (window.fbq) window.fbq("track", "Lead", { content_name: "Email sign-up" });
+        })
+        .catch(function (err) {
+          go.disabled = false; go.textContent = "Sign me up";
+          msg.className = "ccs-msg ccs-err";
+          msg.textContent = err.message || "Couldn't sign you up right now. Please try again in a minute.";
+        });
+    });
+    footer.parentNode.insertBefore(box, footer);
+  }
 })();
