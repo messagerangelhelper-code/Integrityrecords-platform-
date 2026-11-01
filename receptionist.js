@@ -395,7 +395,7 @@
     strong.appendChild(el("span", null, "Cow"));
     strong.appendChild(document.createTextNode(" assistant"));
     title.appendChild(strong);
-    title.appendChild(el("small", null, "Answers about our apps · leave a message anytime"));
+    title.appendChild(el("small", null, "Answers about our apps · or call (945) 212-6167"));
     var x = el("button", "ccr-x", "×");
     x.type = "button";
     x.setAttribute("aria-label", "Close chat");
@@ -454,6 +454,22 @@
   document.body.appendChild(btn);
   if (/^\d{6,20}$/.test(META_PIXEL_ID)) loadPixel(META_PIXEL_ID);
   addEmailSignup();
+  addPhoneLine();
+
+  // ---- Phone number in every page footer ----
+  function addPhoneLine() {
+    var footer = document.querySelector("footer");
+    if (!footer || footer.querySelector(".cc-phone")) return;
+    var line = document.createElement("div");
+    line.className = "cc-phone";
+    line.style.cssText = "margin-top:6px;font-size:14px;";
+    var a = document.createElement("a");
+    a.href = "tel:+19452126167";
+    a.style.color = "inherit";
+    a.textContent = "\ud83d\udcde Call or leave a message: (945) 212-6167";
+    line.appendChild(a);
+    footer.appendChild(line);
+  }
 
   // ---- "Get CashCow tips by email" box, shown above the footer ----
   // Sign-ups get a confirmation email first (double opt-in), and each app page tags
