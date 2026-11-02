@@ -194,9 +194,9 @@
   }
 
   function allAccess() {
-    bot("CashCow All Access is coming soon: one membership that unlocks Premium in every CashCow app, including new ones as they launch. Want us to tell you when it opens?");
+    bot("CashCow All Access is open: one membership for Premium in every CashCow app you sign in to, including ScamShield Premium with Email Guard and every new app. $29 a month, $249 a year, or $499 once.");
     choices([
-      ["Yes, notify me", function () { leadForm("All Access", "Please notify me when CashCow All Access launches.", "allaccess", true) }],
+      ["Join All Access", function () { location.href = "cart.html?plan=lease"; }],
       ["Something else", start],
     ]);
   }
@@ -455,6 +455,102 @@
   if (/^\d{6,20}$/.test(META_PIXEL_ID)) loadPixel(META_PIXEL_ID);
   addEmailSignup();
   addPhoneLine();
+  addHeaderSearch();
+
+  // ---- App search in the header, on every page ----
+  // Type a few letters or a problem ("scam", "bills", "car") and jump straight to the app.
+  function addHeaderSearch() {
+    var nav = document.querySelector("nav");
+    if (!nav || nav.querySelector(".cc-search")) return;
+    var APPS = [
+      ["ScamShield", "https://scamshield-app-x89o.onrender.com", "Check messages, links, phone numbers and emails for scams", "scam fraud text message link phone email safe fake"],
+      ["ScamGuard Global", "https://scamguard-global.onrender.com", "Scam checks with a bold red, white and blue design", "scam fraud stranger safe"],
+      ["MyBillPilot", "https://mybillpilot.onrender.com", "All your bills in one place, with due-date reminders", "bills pay money due budget kids allowance"],
+      ["My Health Check Scan", "https://my-health-check-scan.onrender.com", "Scan food barcodes for banned ingredients and allergens", "food barcode ingredients allergy health scan grocery"],
+      ["My Home Kitchen Remedies", "https://my-home-kitchen-remedies.onrender.com", "Simple remedies from your kitchen, with safety checks", "remedy cough cold kitchen natural health tea"],
+      ["My Letter Helper", "https://my-letter-helper.onrender.com", "Ready-to-send letters for disputes, refunds and landlords", "letter dispute refund cancel landlord debt collector write"],
+      ["My Recall Check", "https://my-recall-check.onrender.com", "Free safety recall checks for your car", "car vehicle recall vin truck motorcycle safety"],
+      ["My Caregiver Circle", "https://my-caregiver-circle.onrender.com", "A shared care plan, one-tap check-ins and refill reminders", "family care parent mom dad elderly medicine appointment check-in caregiver"],
+      ["My Fix-It Helper", "https://my-fix-it-helper.onrender.com", "Step-by-step home and car repairs", "fix repair home house car toilet leak tools diy"],
+      ["My Shopping Helper", "https://my-shopping-helper.onrender.com", "One search across Walmart, Amazon, Target, H-E-B and more", "shopping store price grocery walmart amazon list"],
+      ["CashCow All Access", "cart.html?plan=lease", "Premium in every CashCow app, one price", "premium all access membership price subscription"],
+      ["Encompass", "encompass.html", "Rideshare built on trust (in development)", "ride rideshare driver taxi"],
+      ["Integrity Records", "integrity-records.html", "A workspace for artists (in development)", "music artist gospel records"],
+    ];
+    var css = document.createElement("style");
+    css.textContent =
+      ".cc-search{position:relative;flex:1 1 180px;max-width:280px;margin-left:auto}" +
+      ".cc-search input{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:inherit}" +
+      ".cc-search input::placeholder{color:inherit;opacity:.75}" +
+      ".cc-search input:focus{outline:2px solid #f2b705;background:#fff;color:#111}" +
+      ".cc-results{position:absolute;right:0;left:0;top:calc(100% + 6px);min-width:260px;background:#fff;color:#111;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);list-style:none;margin:0;padding:6px;z-index:9999;max-height:70vh;overflow:auto}" +
+      ".cc-results a{display:block;padding:9px 10px;border-radius:8px;color:#111;text-decoration:none}" +
+      ".cc-results a:hover,.cc-results a.on{background:#fff4d6}" +
+      ".cc-results small{display:block;color:#555;font-size:13px}" +
+      ".cc-results .none{padding:9px 10px;color:#555}" +
+      "@media (max-width:640px){.cc-search{flex-basis:100%;max-width:none;margin:8px 0 0;order:9}}";
+    document.head.appendChild(css);
+    nav.style.flexWrap = "wrap";
+    var box = document.createElement("div");
+    box.className = "cc-search";
+    box.setAttribute("role", "search");
+    var input = document.createElement("input");
+    input.type = "search";
+    input.placeholder = "🔍 Find an app";
+    input.setAttribute("aria-label", "Find an app");
+    input.setAttribute("autocomplete", "off");
+    input.setAttribute("enterkeyhint", "go");
+    var list = document.createElement("ul");
+    list.className = "cc-results";
+    list.hidden = true;
+    box.appendChild(input);
+    box.appendChild(list);
+    nav.appendChild(box);
+    var picked = 0, shown = [];
+    function render() {
+      var words = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      list.innerHTML = "";
+      if (!words.length) { list.hidden = true; return; }
+      shown = APPS.filter(function (a) {
+        var hay = (a[0] + " " + a[2] + " " + a[3]).toLowerCase();
+        return words.every(function (w) { return hay.indexOf(w) !== -1; });
+      });
+      picked = 0;
+      if (!shown.length) {
+        var li = document.createElement("li");
+        li.className = "none";
+        li.textContent = "No app for that yet. Tell us in the chat!";
+        list.appendChild(li);
+      }
+      shown.forEach(function (a, i) {
+        var li = document.createElement("li");
+        var link = document.createElement("a");
+        link.href = a[1];
+        if (i === 0) link.className = "on";
+        link.textContent = a[0];
+        var sub = document.createElement("small");
+        sub.textContent = a[2];
+        link.appendChild(sub);
+        li.appendChild(link);
+        list.appendChild(li);
+      });
+      list.hidden = false;
+    }
+    input.addEventListener("input", render);
+    input.addEventListener("keydown", function (e) {
+      var links = list.querySelectorAll("a");
+      if (e.key === "Enter" && links[picked]) { location.href = links[picked].getAttribute("href"); }
+      else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!links.length) return;
+        links[picked].classList.remove("on");
+        picked = (picked + (e.key === "ArrowDown" ? 1 : links.length - 1)) % links.length;
+        links[picked].classList.add("on");
+      } else if (e.key === "Escape") { input.value = ""; render(); }
+    });
+    document.addEventListener("click", function (e) { if (!box.contains(e.target)) list.hidden = true; });
+    input.addEventListener("focus", render);
+  }
 
   // ---- Phone number in every page footer ----
   function addPhoneLine() {
