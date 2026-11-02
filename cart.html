@@ -20,6 +20,19 @@
   .cart-pay-btn:disabled { opacity: 0.6; cursor: default; }
   .cart-switch { margin-top: 24px; font-size: 14px; }
   .cart-switch a { color: inherit; text-decoration: underline; margin: 0 6px; }
+  .cart-plans { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .cart-plans a { border: 2px solid #ddd; border-radius: 999px; padding: 8px 16px; color: inherit; text-decoration: none; font-weight: 700; }
+  .cart-plans a.on { border-color: #c9a227; background: #fff8e1; }
+  .cart-step { text-align: left; background: #f7f7f7; border-radius: 10px; padding: 14px; margin: 0 0 16px; }
+  .cart-step-title { margin: 0 0 4px; }
+  .cart-small { font-size: 13px; color: #666; margin: 6px 0; }
+  .cart-form { display: grid; gap: 6px; }
+  .cart-form label { font-size: 14px; font-weight: 700; }
+  .cart-form input { font: inherit; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
+  .cart-signin-btn { margin-top: 6px; cursor: pointer; }
+  .cart-signed { background: #eaf6ee; border-radius: 10px; padding: 10px; margin: 0 0 16px; }
+  .cart-note { color: #1b5e3b; margin-top: 14px; }
+  .cart-wrap [hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -35,97 +48,172 @@
   </nav>
 
   <div class="cart-wrap">
-    <h1 style="text-align:center; margin-bottom: 24px;">Checkout</h1>
+    <h1 style="text-align:center; margin-bottom: 8px;">CashCow All Access</h1>
+    <p style="text-align:center; color:#555; margin:0 0 22px;">Premium in every CashCow app you sign in to, including ScamShield Premium with Email Guard, plus every new app we launch.</p>
+
+    <div class="cart-plans" role="radiogroup" aria-label="Choose a plan">
+      <a href="cart.html?plan=rent" data-plan="rent">Monthly</a>
+      <a href="cart.html?plan=lease" data-plan="lease">Yearly</a>
+      <a href="cart.html?plan=buy" data-plan="buy">Lifetime</a>
+    </div>
 
     <div class="cart-card" id="cartCard">
       <span class="badge" id="cartBadge">—</span>
       <div class="cart-price" id="cartPrice">—</div>
       <p class="cart-desc" id="cartDesc">Loading plan…</p>
+
+      <div class="cart-step" id="signinBox">
+        <p class="cart-step-title"><strong>Step 1:</strong> Sign in to your CashCow account</p>
+        <p class="cart-small">All Access unlocks Premium on your account, so it works in every app and on every device. Use the same email and password as your CashCow apps.</p>
+        <form id="signinForm" class="cart-form">
+          <label for="cartEmail">Email</label>
+          <input id="cartEmail" type="email" autocomplete="email" required maxlength="120" />
+          <label for="cartPassword">Password</label>
+          <input id="cartPassword" type="password" autocomplete="current-password" required minlength="8" />
+          <button type="submit" class="btn cart-signin-btn" id="signinBtn">Sign in</button>
+          <p class="cart-small">No account yet? <a href="#" id="signupLink">Create a free one</a> · <a href="#" id="resetLink">Forgot password?</a></p>
+        </form>
+      </div>
+      <form class="cart-step cart-form" id="newPwForm" hidden>
+        <p class="cart-step-title"><strong>👉 Choose a new password</strong></p>
+        <label for="newPw">New password (at least 8 characters)</label>
+        <input id="newPw" type="password" autocomplete="new-password" minlength="8" required />
+        <button type="submit" class="btn cart-signin-btn">Save new password</button>
+      </form>
+      <p class="cart-signed" id="signedAs" hidden></p>
+
       <button class="btn btn-gold cart-pay-btn" id="cartPayBtn" disabled>Proceed to payment</button>
       <p class="cart-error" id="cartError"></p>
+      <p class="cart-note" id="cartNote" hidden></p>
     </div>
 
-    <p class="cart-switch">
-      Not the right plan?
-      <a href="cart.html?plan=rent">Rent</a> ·
-      <a href="cart.html?plan=lease">Lease</a> ·
-      <a href="cart.html?plan=buy">Buy</a>
-    </p>
+    <p class="cart-switch">Payments are handled securely by Stripe. Monthly and yearly plans renew until you cancel.</p>
   </div>
 
   <footer>
     &copy; 2026 CashCow. All rights reserved. · <a href="terms.html" style="color:inherit;">Terms of Service</a><br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
   </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
   const REVIEWS_API = "https://cashcow-reviews-api.onrender.com";
+  // Opened from a password-reset email? Check before Supabase clears the link from the address bar.
+  let resetting = /type=recovery/.test(location.hash + location.search);
+  const sb = window.supabase.createClient("https://wbugdujmydwmzemccbiy.supabase.co", "sb_publishable_4RYit1aVs5Egh3gJsx2bJA_m6Kje0ES");
 
   const PLAN_COPY = {
-    rent: { badge: "Rent", desc: "Cancel anytime. No commitment — billed monthly.", period: "/mo" },
-    lease: { badge: "Best value", desc: "Sign a year, save all year. Billed annually.", period: "/yr" },
-    buy: { badge: "Own it", desc: "Stop renting. Own it outright, forever.", period: " one-time" },
+    rent: { badge: "Monthly", period: "/month" },
+    lease: { badge: "Yearly · best value", period: "/year" },
+    buy: { badge: "Lifetime", period: " one time" },
   };
 
   const params = new URLSearchParams(window.location.search);
-  const planKey = params.get("plan") || "rent";
+  const planKey = PLAN_COPY[params.get("plan")] ? params.get("plan") : "lease";
+  const $ = (id) => document.getElementById(id);
+  const payBtn = $("cartPayBtn");
+  let planReady = false;
+  let session = null;
 
-  const badgeEl = document.getElementById("cartBadge");
-  const priceEl = document.getElementById("cartPrice");
-  const descEl = document.getElementById("cartDesc");
-  const payBtn = document.getElementById("cartPayBtn");
-  const errorEl = document.getElementById("cartError");
+  document.querySelectorAll(".cart-plans a").forEach((a) => {
+    if (a.dataset.plan === planKey) { a.classList.add("on"); a.setAttribute("aria-current", "true"); }
+  });
 
-  function showError(msg) {
-    errorEl.textContent = msg;
-    errorEl.style.display = "block";
+  function showError(msg) { $("cartError").textContent = msg; $("cartError").style.display = msg ? "block" : "none"; }
+  function note(msg) { $("cartNote").textContent = msg; $("cartNote").hidden = !msg; }
+
+  function refresh() {
+    const signedIn = !!session;
+    $("newPwForm").hidden = !(resetting && signedIn);
+    $("signinBox").hidden = signedIn;
+    $("signedAs").hidden = !signedIn;
+    if (signedIn) {
+      $("signedAs").textContent = "";
+      $("signedAs").append("✅ Signed in as ", Object.assign(document.createElement("strong"), { textContent: session.user.email }), " · ");
+      const out = Object.assign(document.createElement("a"), { href: "#", textContent: "Sign out" });
+      out.addEventListener("click", async (e) => { e.preventDefault(); await sb.auth.signOut(); });
+      $("signedAs").append(out);
+    }
+    payBtn.disabled = !(planReady && signedIn) || resetting;
+    payBtn.textContent = signedIn ? "Proceed to payment" : "Sign in first to continue";
   }
 
   async function loadPlan() {
-    const copy = PLAN_COPY[planKey];
-    if (!copy) {
-      showError("Unknown plan selected.");
-      return;
-    }
     try {
       const res = await fetch(`${REVIEWS_API}/api/plans`);
       const plans = await res.json();
       const plan = plans[planKey];
-      if (!plan) {
-        showError("That plan isn't available right now.");
-        return;
-      }
-      badgeEl.textContent = copy.badge;
-      priceEl.textContent = `$${(plan.amount / 100).toFixed(2).replace(/\.00$/, "")}${copy.period}`;
-      descEl.textContent = copy.desc;
-      payBtn.disabled = false;
+      if (!plan) { showError("That plan isn't available right now."); return; }
+      $("cartBadge").textContent = PLAN_COPY[planKey].badge;
+      $("cartPrice").textContent = `$${(plan.amount / 100).toFixed(2).replace(/\.00$/, "")}${PLAN_COPY[planKey].period}`;
+      $("cartDesc").textContent = plan.description || plan.name;
+      planReady = true;
+      refresh();
     } catch (e) {
-      showError("Couldn't load plan details — please refresh and try again.");
+      showError("Couldn't load plan details. Please refresh and try again.");
     }
   }
 
+  $("signinForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    showError(""); note("");
+    $("signinBtn").disabled = true;
+    const { error } = await sb.auth.signInWithPassword({ email: $("cartEmail").value.trim(), password: $("cartPassword").value });
+    $("signinBtn").disabled = false;
+    if (error) showError(/invalid login/i.test(error.message) ? "That email and password don't match. Try again, or reset your password." : "Couldn't sign in right now. Please try again.");
+  });
+
+  $("signupLink").addEventListener("click", async (e) => {
+    e.preventDefault();
+    showError(""); note("");
+    const email = $("cartEmail").value.trim(), password = $("cartPassword").value;
+    if (!email || password.length < 8) { showError("Enter your email and a password with at least 8 characters, then tap Create a free one."); return; }
+    const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.href } });
+    if (error) { showError("Couldn't create the account. Please try again."); return; }
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) { showError("That email already has a CashCow account. Sign in instead."); return; }
+    if (!data.session) note("Almost done! Check your email and tap the link to confirm your account. It brings you back here.");
+  });
+
+  $("resetLink").addEventListener("click", async (e) => {
+    e.preventDefault();
+    showError(""); note("");
+    const email = $("cartEmail").value.trim();
+    if (!email) { showError("Enter your email first, then tap Forgot password."); return; }
+    await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname + location.search });
+    note("If that email has an account, a reset link is on its way.");
+  });
+
+  $("newPwForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    showError(""); note("");
+    const { error } = await sb.auth.updateUser({ password: $("newPw").value });
+    if (error) { showError("Couldn't save the new password. Use at least 8 characters and try again."); return; }
+    resetting = false;
+    note("Your new password is saved. It works in every CashCow app.");
+    refresh();
+  });
+
   payBtn.addEventListener("click", async () => {
+    if (!session) return;
     payBtn.disabled = true;
-    payBtn.textContent = "Redirecting to secure payment…";
-    errorEl.style.display = "none";
+    payBtn.textContent = "Opening secure payment…";
+    showError("");
     try {
       const res = await fetch(`${REVIEWS_API}/api/create-checkout-session`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
         body: JSON.stringify({ plan: planKey }),
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.detail || "Could not start checkout.");
-      }
-      const data = await res.json();
-      window.location.href = data.url;
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body.url) throw new Error(body.detail || "Could not start checkout.");
+      window.location.href = body.url;
     } catch (e) {
-      showError(e.message || "Something went wrong — please try again.");
-      payBtn.disabled = false;
-      payBtn.textContent = "Proceed to payment";
+      showError(e.message || "Something went wrong. Please try again.");
+      refresh();
     }
   });
 
+  sb.auth.getSession().then(({ data }) => { session = data.session; refresh(); });
+  sb.auth.onAuthStateChange((event, s) => { session = s; if (event === "PASSWORD_RECOVERY") resetting = true; refresh(); });
   loadPlan();
 </script>
 

@@ -24,7 +24,8 @@
   </div>
 
   <div class="content-block" style="text-align:center;">
-    <p>A receipt is on its way to your email from Stripe. If you have any questions about your plan, reach out any time.</p>
+    <p id="aaStatus">Confirming your CashCow All Access…</p>
+    <p>A receipt is on its way to your email from Stripe. Open any CashCow app and sign in with the same CashCow account, and Premium turns on automatically. Questions? Call (945) 212-6167 or reach out any time.</p>
     <a href="hire.html" class="btn btn-gold">Get in touch</a>
     <a href="index.html" class="btn" style="margin-left:10px;">Back to home</a>
   </div>
@@ -33,6 +34,22 @@
     &copy; 2026 CashCow. All rights reserved. · <a href="terms.html" style="color:inherit;">Terms of Service</a><br><span style="font-size:12px; opacity:0.7;">Built with Claude</span>
   </footer>
 
+  <script>
+    (async function () {
+      const el = document.getElementById("aaStatus");
+      const sid = new URLSearchParams(location.search).get("session_id");
+      if (!sid) { el.textContent = "Your CashCow All Access is ready."; return; }
+      try {
+        const res = await fetch("https://cashcow-reviews-api.onrender.com/api/verify-session?app=allaccess&session_id=" + encodeURIComponent(sid));
+        const data = await res.json();
+        el.textContent = data.premium
+          ? "✅ CashCow All Access is active on your account."
+          : "We're still confirming your payment. Open any CashCow app in a few minutes and sign in.";
+      } catch (e) {
+        el.textContent = "Your payment went through. Open any CashCow app and sign in to use All Access.";
+      }
+    })();
+  </script>
   <script src="receptionist.js" defer></script>
 </body>
 </html>

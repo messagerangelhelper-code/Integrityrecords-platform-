@@ -6,6 +6,17 @@
   <title>CashCow — Simple Solutions for Everyday Problems</title>
   <meta name="description" content="CashCow builds apps that make everyday life simpler: spot scams, keep bills on track, and know what's in your food. Plus custom development work." />
   <link rel="stylesheet" href="style.css" />
+<style>.aa-plans{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}.aa-plans .btn{flex:1 1 140px;text-align:center}</style>
+<style>
+.app-finder{max-width:760px;margin:-10px auto 26px;display:grid;gap:10px}
+.app-finder input{font:inherit;font-size:17px;padding:13px 16px;border:2px solid #d6d6d6;border-radius:12px;width:100%;box-sizing:border-box}
+.app-finder input:focus{outline:3px solid #f2b705;border-color:#c9a227}
+.app-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.app-chip{font:inherit;font-size:14px;font-weight:700;border:2px solid #ddd;background:#fff;color:#222;border-radius:999px;padding:7px 13px;cursor:pointer;min-height:40px}
+.app-chip.on{border-color:#c9a227;background:#fff8e1}
+.app-count{text-align:center;margin:0;color:#666;font-size:14px;min-height:1em}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
 </head>
 <body>
 
@@ -35,6 +46,20 @@
 
   <main>
     <h2 class="section-title" id="products">Problems we solve</h2>
+    <div class="app-finder" role="search">
+      <label for="appSearch" class="sr-only">Find an app</label>
+      <input id="appSearch" type="search" placeholder="🔍 Find an app: scam, bills, car, food, family…" autocomplete="off" enterkeyhint="search" />
+      <div class="app-chips" role="group" aria-label="Filter apps by topic">
+        <button type="button" class="app-chip on" data-cat="all" aria-pressed="true">All</button>
+        <button type="button" class="app-chip" data-cat="safety" aria-pressed="false">🛡️ Safety</button>
+        <button type="button" class="app-chip" data-cat="money" aria-pressed="false">💵 Money</button>
+        <button type="button" class="app-chip" data-cat="health" aria-pressed="false">🩺 Health &amp; family</button>
+        <button type="button" class="app-chip" data-cat="home" aria-pressed="false">🏠 Home &amp; car</button>
+        <button type="button" class="app-chip" data-cat="shopping" aria-pressed="false">🛒 Shopping</button>
+        <button type="button" class="app-chip" data-cat="soon" aria-pressed="false">🚧 Coming soon</button>
+      </div>
+      <p id="appCount" class="app-count" role="status"></p>
+    </div>
     <div class="products-grid">
       <div class="product-card">
         <span class="badge">Live now</span>
@@ -305,35 +330,35 @@
 
     <h2 class="section-title" id="all-access" style="margin-top:60px;">CashCow All Access</h2>
     <p style="text-align:center; max-width:600px; margin:-20px auto 32px; color:#555;">
-      Coming soon: one membership that unlocks Premium in every CashCow app, including every new app we add.
+      One membership that unlocks Premium in every CashCow app you sign in to, including every new app we add.
       One account, one price.
     </p>
 
     <div class="product-card all-access-card">
-      <span class="badge badge-gold">Coming soon</span>
+      <span class="badge badge-gold">Now open</span>
       <h3 style="margin:8px 0 6px;">One membership, every app</h3>
       <ul class="all-access-list">
-        <li>Premium in ScamShield, ScamGuard Global, MyBillPilot, My Health Check Scan, My Home Kitchen Remedies, My Letter Helper, My Recall Check, My Caregiver Circle, My Fix-It Helper and My Shopping Helper</li>
+        <li>ScamShield Premium: unlimited scam checks in ScamShield and ScamGuard Global, plus Email Guard</li>
+        <li>Premium in My Health Check Scan, My Home Kitchen Remedies, My Letter Helper, My Recall Check, My Caregiver Circle, My Fix-It Helper and My Shopping Helper</li>
         <li>Every new CashCow app included as it launches</li>
         <li>One CashCow account that works on all your devices</li>
       </ul>
-      <p style="margin:0 0 12px;">Want to know when it opens? Leave your email and we'll tell you first.</p>
-      <form id="notify-form" class="notify-form">
-        <input type="text" id="notify-name" placeholder="Your name" required maxlength="80" autocomplete="name" />
-        <input type="email" id="notify-email" placeholder="Your email" required maxlength="120" autocomplete="email" />
-        <button type="submit" class="btn btn-gold">Notify me</button>
-      </form>
-      <p id="notify-status" class="subtext" role="status" style="margin:10px 0 0;"></p>
-      <p style="margin:16px 0 0; font-size:14px; color:#666;">
-        Until then, each app has its own Premium:
-        <a href="mybillpilot.html">MyBillPilot</a> from $4.99/month,
+      <div class="aa-plans">
+        <a class="btn btn-gold" href="cart.html?plan=rent">$29 / month</a>
+        <a class="btn btn-gold" href="cart.html?plan=lease">$249 / year</a>
+        <a class="btn btn-gold" href="cart.html?plan=buy">$499 once</a>
+      </div>
+      <p style="margin:14px 0 0; font-size:14px; color:#666;">
+        Same price as ScamShield Premium alone, with every other app included. You can also buy it inside any app's Premium page.
+        Prefer just one app? Each has its own Premium:
+        <a href="mybillpilot.html">MyBillPilot</a> from $4.99/month (sold separately, no sign-in needed),
         <a href="myhealthcheckscan.html">My Health Check Scan</a> from $2.99/month,
         <a href="myhomekitchenremedies.html">My Home Kitchen Remedies</a>,
         <a href="myletterhelper.html">My Letter Helper</a>,
         <a href="myrecallcheck.html">My Recall Check</a>,
         <a href="myfixithelper.html">My Fix-It Helper</a> and
         <a href="myshoppinghelper.html">My Shopping Helper</a> from $1.99/month, and
-        <a href="mycaregivercircle.html">My Caregiver Circle</a> from $2.99/month, bought inside the app.
+        <a href="mycaregivercircle.html">My Caregiver Circle</a> from $2.99/month.
       </p>
     </div>
 
@@ -541,32 +566,51 @@
   </script>
 
   <script>
-    // "Notify me" for CashCow All Access: sent to your own inbox through the existing lead email.
-    document.getElementById("notify-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const status = document.getElementById("notify-status");
-      const btn = e.target.querySelector("button");
-      const name = document.getElementById("notify-name").value.trim();
-      const email = document.getElementById("notify-email").value.trim();
-      if (!name || !email) return;
-      btn.disabled = true;
-      status.textContent = "Sending…";
-      try {
-        const res = await fetch("https://cashcow-reviews-api.onrender.com/api/leads", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, message: "Please notify me when CashCow All Access launches.", source: "allaccess", topic: "All Access" }),
+    // App finder: type to search, or tap a topic. Works no matter how many apps we add.
+    (function () {
+      var CATS = {
+        "scamshield.html": "safety", "scamguard.html": "safety",
+        "mybillpilot.html": "money", "myletterhelper.html": "money",
+        "myhealthcheckscan.html": "health", "myhomekitchenremedies.html": "health", "mycaregivercircle.html": "health",
+        "myfixithelper.html": "home", "myrecallcheck.html": "home",
+        "myshoppinghelper.html": "shopping",
+        "encompass.html": "soon", "integrity-records.html": "soon"
+      };
+      var grid = document.querySelector(".products-grid");
+      var input = document.getElementById("appSearch");
+      var count = document.getElementById("appCount");
+      if (!grid || !input) return;
+      var cards = Array.prototype.slice.call(grid.querySelectorAll(".product-card"));
+      cards.forEach(function (c) {
+        var a = c.querySelector("h3 a");
+        c.dataset.cat = (a && CATS[a.getAttribute("href")]) || "other";
+        c.dataset.text = c.textContent.replace(/\s+/g, " ").toLowerCase();
+      });
+      var cat = "all";
+      function apply() {
+        var words = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        cards.forEach(function (c) {
+          var ok = (cat === "all" || c.dataset.cat === cat) && words.every(function (w) { return c.dataset.text.indexOf(w) !== -1; });
+          c.hidden = !ok;
+          if (ok) shown++;
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || data.success === false) throw new Error();
-        status.textContent = "Thanks! You're on the list. We'll email you when All Access opens.";
-        e.target.reset();
-      } catch {
-        status.textContent = "Couldn't send that right now. Please try again in a minute.";
-      } finally {
-        btn.disabled = false;
+        count.textContent = (words.length || cat !== "all")
+          ? (shown ? shown + (shown === 1 ? " app" : " apps") + " found" : "No apps match that yet. Try another word, or tap All.")
+          : "";
       }
-    });
+      input.addEventListener("input", apply);
+      document.querySelectorAll(".app-chip").forEach(function (b) {
+        b.addEventListener("click", function () {
+          cat = b.dataset.cat;
+          document.querySelectorAll(".app-chip").forEach(function (x) {
+            x.classList.toggle("on", x === b);
+            x.setAttribute("aria-pressed", x === b ? "true" : "false");
+          });
+          apply();
+        });
+      });
+    })();
   </script>
   <script src="receptionist.js" defer></script>
 </body>
