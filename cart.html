@@ -51,13 +51,21 @@
     <h1 style="text-align:center; margin-bottom: 8px;">CashCow All Access</h1>
     <p style="text-align:center; color:#555; margin:0 0 22px;">Premium in every CashCow app you sign in to, including ScamShield Premium with Email Guard, plus every new app we launch.</p>
 
-    <div class="cart-plans" role="radiogroup" aria-label="Choose a plan">
+    <!-- All Access is not for sale yet. Remove this notice and the two display:none styles to open it. -->
+    <div class="cart-card" style="text-align:center;">
+      <span class="badge badge-soon">Coming soon</span>
+      <p style="margin:12px 0 6px; font-weight:600;">CashCow All Access isn't for sale yet.</p>
+      <p class="cart-small">Until it opens, each app has its own pricing and checkout. Open the app you want and use its Premium page.</p>
+      <a class="btn btn-gold" href="index.html#products" style="margin-top:10px;">See the apps</a>
+    </div>
+
+    <div class="cart-plans" role="radiogroup" aria-label="Choose a plan" style="display:none;">
       <a href="cart.html?plan=rent" data-plan="rent">Monthly</a>
       <a href="cart.html?plan=lease" data-plan="lease">Yearly</a>
       <a href="cart.html?plan=buy" data-plan="buy">Lifetime</a>
     </div>
 
-    <div class="cart-card" id="cartCard">
+    <div class="cart-card" id="cartCard" style="display:none;">
       <span class="badge" id="cartBadge">—</span>
       <div class="cart-price" id="cartPrice">—</div>
       <p class="cart-desc" id="cartDesc">Loading plan…</p>
