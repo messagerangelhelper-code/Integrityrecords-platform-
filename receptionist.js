@@ -473,7 +473,8 @@
       ["My Caregiver Circle", "https://my-caregiver-circle.onrender.com", "A shared care plan, one-tap check-ins and refill reminders", "family care parent mom dad elderly medicine appointment check-in caregiver"],
       ["My Fix-It Helper", "https://my-fix-it-helper.onrender.com", "Step-by-step home and car repairs", "fix repair home house car toilet leak tools diy"],
       ["My Shopping Helper", "https://my-shopping-helper.onrender.com", "One search across Walmart, Amazon, Target, H-E-B and more", "shopping store price grocery walmart amazon list"],
-      ["CashCow All Access", "cart.html?plan=lease", "Premium in every CashCow app, one price", "premium all access membership price subscription"],
+      ["LeadReplyRadar", "https://leadreplyradar.onrender.com", "Rings when an important email lands, so you reply first (14-day free trial)", "email inbox lead reply leads sales alert gmail outlook urgent hot radar"],
+      ["CashCow All Access", "cart.html", "Premium in every CashCow app, one price (coming soon)", "premium all access membership price subscription"],
       ["Encompass", "encompass.html", "Rideshare built on trust (in development)", "ride rideshare driver taxi"],
       ["Integrity Records", "integrity-records.html", "A workspace for artists (in development)", "music artist gospel records"],
     ];
